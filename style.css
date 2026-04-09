@@ -1960,12 +1960,20 @@ button {
         grid-template-columns: 1fr;
     }
 
+    .product-modal {
+        width: min(92vw, 520px);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+    }
+
     .modal-image {
         aspect-ratio: 16/10;
     }
 
     .modal-info {
         padding: 24px;
+        overflow: visible;
     }
 
     .about-stats {
@@ -2042,6 +2050,13 @@ button {
 }
 
 @media (max-width: 480px) {
+    .product-modal {
+        width: calc(100vw - 20px);
+        max-width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+        max-height: calc(100dvh - 20px);
+    }
+
     .cart-sidebar {
         width: 240px;
         max-width: 240px;
