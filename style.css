@@ -1589,7 +1589,7 @@ button {
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
-    transition: var(--transition-base);
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .product-modal.active {
@@ -1956,24 +1956,153 @@ button {
         max-width: 350px;
     }
 
-    .modal-body {
-        grid-template-columns: 1fr;
+    /* Mobile Bottom Sheet Modal */
+    .product-modal {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        max-height: 82vh;
+        max-height: 82dvh;
+        transform: translateY(100%);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        border: none;
+        border-top: 1px solid var(--border-hover);
+        background: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 
-    .product-modal {
-        width: min(92vw, 520px);
-        max-height: calc(100vh - 24px);
-        max-height: calc(100dvh - 24px);
-        overflow-y: auto;
+    .product-modal.active {
+        transform: translateY(0);
+    }
+
+    /* Drag handle indicator */
+    .product-modal::before {
+        content: '';
+        position: sticky;
+        top: 0;
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: rgba(255,255,255,0.25);
+        border-radius: 4px;
+        margin: 10px auto 0;
+        z-index: 20;
+    }
+
+    .modal-close {
+        top: 6px;
+        left: 12px;
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .modal-body {
+        grid-template-columns: 1fr;
+        gap: 0;
     }
 
     .modal-image {
-        aspect-ratio: 16/10;
+        aspect-ratio: 16/9;
+        max-height: 200px;
+        border-radius: 0;
+        position: relative;
+    }
+
+    .modal-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: linear-gradient(to top, #1a1a1a, transparent);
+        pointer-events: none;
     }
 
     .modal-info {
-        padding: 24px;
+        padding: 16px 20px 24px;
+        gap: 10px;
         overflow: visible;
+    }
+
+    .modal-brand {
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+    }
+
+    .modal-info h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+
+    .modal-gender {
+        font-size: 0.75rem;
+        padding: 3px 10px;
+    }
+
+    .modal-sizes h4,
+    .modal-quantity h4 {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+
+    .size-options {
+        gap: 8px;
+    }
+
+    .size-btn {
+        padding: 10px 8px;
+        border-radius: var(--radius-sm);
+        border-width: 1.5px;
+    }
+
+    .size-label {
+        font-size: 0.82rem;
+    }
+
+    .size-price {
+        font-size: 0.92rem;
+    }
+
+    /* Quantity and Add to Cart inline row */
+    .modal-quantity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .modal-quantity h4 {
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+
+    .quantity-control {
+        padding: 2px;
+    }
+
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .qty-value {
+        min-width: 30px;
+        font-size: 0.95rem;
+    }
+
+    .btn-add-to-cart {
+        padding: 12px;
+        font-size: 0.92rem;
+        border-radius: var(--radius-xl);
+        margin-top: 4px;
     }
 
     .about-stats {
@@ -2050,11 +2179,12 @@ button {
 }
 
 @media (max-width: 480px) {
-    .product-modal {
-        width: calc(100vw - 20px);
-        max-width: calc(100vw - 20px);
-        max-height: calc(100vh - 20px);
-        max-height: calc(100dvh - 20px);
+    .modal-image {
+        max-height: 170px;
+    }
+
+    .modal-info h2 {
+        font-size: 1.15rem;
     }
 
     .cart-sidebar {
