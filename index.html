@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>H&R Perfume | لمسة من الفخامة في كل قطرة</title>
-    <meta name="description" content="H&R Perfume - متجر العطور الفاخرة. اكتشف مجموعتنا المميزة من أفضل العطور العالمية للرجال والنساء. لمسة من الفخامة في كل قطرة.">
+    <meta name="description"
+        content="H&R Perfume - متجر العطور الفاخرة. اكتشف مجموعتنا المميزة من أفضل العطور العالمية للرجال والنساء. لمسة من الفخامة في كل قطرة.">
     <link rel="icon" type="image/png" href="logo without background.png">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <!-- Loader -->
     <div id="page-loader" class="page-loader">
         <div class="loader-content">
             <img src="logo without background.png" alt="H&R" class="loader-logo">
-            <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+            <div class="loader-bar">
+                <div class="loader-bar-fill"></div>
+            </div>
         </div>
     </div>
 
@@ -24,7 +31,9 @@
     <header id="main-header" class="main-header">
         <div class="header-top">
             <div class="container">
-                <span><i class="fas fa-shipping-fast"></i> &#1578;&#1608;&#1589;&#1610;&#1604; &#1605;&#1580;&#1575;&#1606;&#1610; &#1604;&#1604;&#1591;&#1604;&#1576;&#1575;&#1578; &#1575;&#1604;&#1578;&#1610; &#1578;&#1578;&#1580;&#1575;&#1608;&#1586; 60 &#1583;.&#1571;</span>
+                <span><i class="fas fa-shipping-fast"></i> &#1578;&#1608;&#1589;&#1610;&#1604;
+                    &#1605;&#1580;&#1575;&#1606;&#1610; &#1604;&#1604;&#1591;&#1604;&#1576;&#1575;&#1578;
+                    &#1575;&#1604;&#1578;&#1610; &#1578;&#1578;&#1580;&#1575;&#1608;&#1586; 60 &#1583;.&#1571;</span>
                 <span><i class="fas fa-gem"></i> عطور فاخرة بأسعار مميزة</span>
             </div>
         </div>
@@ -71,22 +80,28 @@
         </div>
         <div class="cart-footer" id="cart-footer" style="display:none;">
             <div class="cart-discount-section">
-                <label class="cart-discount-label" for="discount-code-input">&#1603;&#1608;&#1583; &#1575;&#1604;&#1582;&#1589;&#1605;</label>
+                <label class="cart-discount-label" for="discount-code-input">&#1603;&#1608;&#1583;
+                    &#1575;&#1604;&#1582;&#1589;&#1605;</label>
                 <div class="cart-discount-form">
-                    <input type="text" id="discount-code-input" class="cart-discount-input" placeholder="&#1571;&#1583;&#1582;&#1604; &#1603;&#1608;&#1583; &#1575;&#1604;&#1582;&#1589;&#1605;" dir="rtl" autocomplete="off">
-                    <button class="cart-discount-btn" id="discount-apply-btn" type="button" disabled>&#1578;&#1591;&#1576;&#1610;&#1602;</button>
+                    <input type="text" id="discount-code-input" class="cart-discount-input"
+                        placeholder="&#1571;&#1583;&#1582;&#1604; &#1603;&#1608;&#1583; &#1575;&#1604;&#1582;&#1589;&#1605;"
+                        dir="rtl" autocomplete="off">
+                    <button class="cart-discount-btn" id="discount-apply-btn" type="button"
+                        disabled>&#1578;&#1591;&#1576;&#1610;&#1602;</button>
                 </div>
                 <p class="cart-discount-message" id="discount-validation-message"></p>
                 <div class="cart-discount-applied" id="discount-applied-box" style="display:none;">
                     <div class="cart-discount-applied-row">
                         <span id="discount-applied-code"></span>
-                        <button class="cart-discount-remove" id="discount-remove-btn" type="button">&#1573;&#1586;&#1575;&#1604;&#1577;</button>
+                        <button class="cart-discount-remove" id="discount-remove-btn"
+                            type="button">&#1573;&#1586;&#1575;&#1604;&#1577;</button>
                     </div>
                     <span class="cart-discount-applied-value" id="discount-applied-value"></span>
                 </div>
             </div>
             <div class="cart-summary-line">
-                <span>&#1575;&#1604;&#1605;&#1580;&#1605;&#1608;&#1593; &#1575;&#1604;&#1601;&#1585;&#1593;&#1610;</span>
+                <span>&#1575;&#1604;&#1605;&#1580;&#1605;&#1608;&#1593;
+                    &#1575;&#1604;&#1601;&#1585;&#1593;&#1610;</span>
                 <span id="cart-subtotal-price">0 &#1583;.&#1571;</span>
             </div>
             <div class="cart-summary-line cart-summary-discount" id="cart-discount-row" style="display:none;">
@@ -94,7 +109,8 @@
                 <span id="cart-discount-price">-0 &#1583;.&#1571;</span>
             </div>
             <div class="cart-total">
-                <span>&#1575;&#1604;&#1605;&#1580;&#1605;&#1608;&#1593; &#1575;&#1604;&#1606;&#1607;&#1575;&#1574;&#1610;</span>
+                <span>&#1575;&#1604;&#1605;&#1580;&#1605;&#1608;&#1593;
+                    &#1575;&#1604;&#1606;&#1607;&#1575;&#1574;&#1610;</span>
                 <span id="cart-total-price">0 &#1583;.&#1571;</span>
             </div>
             <div class="cart-shipping-status">
@@ -235,7 +251,8 @@
                     <span class="section-badge">تعرف علينا</span>
                     <h2>من نحن</h2>
                     <p class="about-lead">H&R Perfume - وجهتك الأولى للعطور الفاخرة</p>
-                    <p>نقدم لكم أرقى وأفخم العطور العالمية من أشهر الماركات. نحرص على اختيار كل عطر بعناية فائقة لنضمن لكم تجربة استثنائية مع كل قطرة.</p>
+                    <p>نقدم لكم أرقى وأفخم العطور العالمية من أشهر الماركات. نحرص على اختيار كل عطر بعناية فائقة لنضمن
+                        لكم تجربة استثنائية مع كل قطرة.</p>
                     <p>رسالتنا هي تقديم الفخامة بأسعار مناسبة للجميع، مع ضمان الجودة والأصالة في كل منتج نقدمه.</p>
                     <div class="about-stats">
                         <div class="stat">
@@ -275,7 +292,8 @@
                     <h4>واتساب</h4>
                     <p>تواصل معنا مباشرة</p>
                 </a>
-                <a href="https://instagram.com/hadeelandrama" target="_blank" class="contact-card" id="contact-instagram">
+                <a href="https://instagram.com/hadeelandrama" target="_blank" class="contact-card"
+                    id="contact-instagram">
                     <div class="contact-icon instagram"><i class="fab fa-instagram"></i></div>
                     <h4>انستغرام</h4>
                     <p>تابعنا للعروض الحصرية</p>
@@ -297,9 +315,12 @@
                     <img src="logo without background.png" alt="H&R Perfume" class="footer-logo">
                     <p>لمسة من الفخامة في كل قطرة</p>
                     <div class="footer-socials">
-                        <a href="https://wa.me/962797107408" target="_blank" aria-label="واتساب"><i class="fab fa-whatsapp"></i></a>
-                        <a href="https://instagram.com/hadeelandrama" target="_blank" aria-label="انستغرام"><i class="fab fa-instagram"></i></a>
-                        <a href="https://facebook.com/hadeelandrama" target="_blank" aria-label="فيسبوك"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://wa.me/962797107408" target="_blank" aria-label="واتساب"><i
+                                class="fab fa-whatsapp"></i></a>
+                        <a href="https://instagram.com/hadeelandrama" target="_blank" aria-label="انستغرام"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="https://facebook.com/hadeelandrama" target="_blank" aria-label="فيسبوك"><i
+                                class="fab fa-facebook-f"></i></a>
                     </div>
                 </div>
                 <div class="footer-links">
@@ -323,8 +344,10 @@
                 <div class="footer-links">
                     <h4>تواصل معنا</h4>
                     <ul>
-                        <li><a href="https://wa.me/962797107408" target="_blank"><i class="fab fa-whatsapp"></i> واتساب</a></li>
-                        <li><a href="https://instagram.com/hadeelandrama" target="_blank"><i class="fab fa-instagram"></i> انستغرام</a></li>
+                        <li><a href="https://wa.me/962797107408" target="_blank"><i class="fab fa-whatsapp"></i>
+                                واتساب</a></li>
+                        <li><a href="https://instagram.com/hadeelandrama" target="_blank"><i
+                                    class="fab fa-instagram"></i> انستغرام</a></li>
                         <li><a href="tel:+962797107408"><i class="fas fa-phone"></i> اتصل بنا</a></li>
                     </ul>
                 </div>
@@ -372,7 +395,8 @@
     </div>
 
     <!-- WhatsApp Float -->
-    <a href="https://wa.me/962797107408" class="whatsapp-float" target="_blank" aria-label="تواصل عبر واتساب" id="whatsapp-float">
+    <a href="https://wa.me/962797107408" class="whatsapp-float" target="_blank" aria-label="تواصل عبر واتساب"
+        id="whatsapp-float">
         <i class="fab fa-whatsapp"></i>
     </a>
 
@@ -383,10 +407,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
-
-
-
-
-
-

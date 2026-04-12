@@ -19,14 +19,14 @@
     --border-color: rgba(201, 168, 72, 0.12);
     --border-hover: rgba(201, 168, 72, 0.35);
 
-    --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-    --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
-    --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
     --shadow-gold: 0 4px 30px rgba(201, 168, 72, 0.12);
 
     --gradient-gold: linear-gradient(135deg, var(--gold-dark), var(--gold-primary), var(--gold-light));
     --gradient-dark: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-    --gradient-card: linear-gradient(145deg, rgba(30,30,30,0.8), rgba(20,20,20,0.95));
+    --gradient-card: linear-gradient(145deg, rgba(30, 30, 30, 0.8), rgba(20, 20, 20, 0.95));
 
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -42,7 +42,9 @@
 }
 
 /* ===== Reset & Base ===== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -54,8 +56,14 @@ html {
     scrollbar-color: var(--gold-dark) var(--bg-secondary);
 }
 
-html::-webkit-scrollbar { width: 8px; }
-html::-webkit-scrollbar-track { background: var(--bg-secondary); }
+html::-webkit-scrollbar {
+    width: 8px;
+}
+
+html::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
 html::-webkit-scrollbar-thumb {
     background: var(--gold-dark);
     border-radius: 4px;
@@ -146,13 +154,27 @@ button {
 }
 
 @keyframes loaderPulse {
-    0%, 100% { opacity: 0.6; transform: scale(0.95); }
-    50% { opacity: 1; transform: scale(1.05); }
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(0.95);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
 }
 
 @keyframes loaderFill {
-    0% { width: 0; }
-    100% { width: 100%; }
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: 100%;
+    }
 }
 
 /* ===== Header ===== */
@@ -310,8 +332,15 @@ button {
 }
 
 @keyframes cartBump {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.4); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.4);
+    }
 }
 
 /* Mobile Menu Button */
@@ -385,16 +414,16 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
+    padding: 16px 18px;
     border-bottom: 1px solid var(--border-color);
 }
 
 .cart-header h3 {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     color: var(--gold-primary);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .cart-close {
@@ -416,7 +445,7 @@ button {
 .cart-items {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 12px;
     scrollbar-width: thin;
     scrollbar-color: var(--gold-dark) transparent;
 }
@@ -446,19 +475,19 @@ button {
 .cart-item {
     position: relative;
     display: grid;
-    grid-template-columns: 72px 1fr;
-    gap: 14px;
-    padding: 14px;
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+    padding: 12px;
     background: var(--bg-tertiary);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     animation: fadeSlideIn 0.3s ease;
 }
 
 .cart-item-image {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
     border-radius: var(--radius-sm);
     overflow: hidden;
     flex-shrink: 0;
@@ -475,19 +504,20 @@ button {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
 }
 
 .cart-item-name {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
+    line-height: 1.35;
     color: var(--text-primary);
-    padding-right: 28px;
+    padding-right: 22px;
 }
 
 .cart-item-detail {
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     color: var(--text-muted);
 }
 
@@ -495,12 +525,12 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 8px;
     margin-top: auto;
 }
 
 .cart-item-price {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--gold-primary);
 }
@@ -509,29 +539,29 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
 }
 
 .cart-item-qty {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
+    gap: 4px;
+    padding: 3px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 999px;
 }
 
 .cart-qty-btn {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: var(--bg-primary);
     color: var(--text-primary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
 }
 
 .cart-qty-btn:hover {
@@ -540,23 +570,23 @@ button {
 }
 
 .cart-qty-value {
-    min-width: 18px;
+    min-width: 16px;
     text-align: center;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 700;
     color: var(--text-primary);
 }
 
 .cart-item-remove {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    width: 28px;
-    height: 28px;
+    top: 10px;
+    left: 10px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: rgba(220, 50, 50, 0.1);
     color: #ff4444;
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -567,15 +597,15 @@ button {
 }
 
 .cart-footer {
-    padding: 20px 24px;
+    padding: 16px 18px 14px;
     border-top: 1px solid var(--border-color);
     background: var(--bg-primary);
 }
 
 .cart-discount-section {
-    margin-bottom: 18px;
-    padding: 16px;
-    background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    margin-bottom: 12px;
+    padding: 12px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
@@ -583,28 +613,28 @@ button {
 
 .cart-discount-label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: var(--text-primary);
-    font-size: 0.92rem;
+    font-size: 0.86rem;
     font-weight: 700;
 }
 
 .cart-discount-form {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 10px;
+    gap: 8px;
     align-items: stretch;
 }
 
 .cart-discount-input {
     width: 100%;
-    padding: 12px 14px;
+    padding: 10px 12px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
     color: var(--text-primary);
     font-family: var(--font-arabic);
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     text-align: right;
     direction: rtl;
     transition: var(--transition-fast);
@@ -620,12 +650,12 @@ button {
 }
 
 .cart-discount-btn {
-    min-width: 96px;
-    padding: 0 18px;
+    min-width: 82px;
+    padding: 0 14px;
     border-radius: var(--radius-md);
     background: var(--gradient-gold);
     color: var(--bg-primary);
-    font-size: 0.92rem;
+    font-size: 0.86rem;
     font-weight: 800;
 }
 
@@ -636,9 +666,9 @@ button {
 }
 
 .cart-discount-message {
-    min-height: 20px;
-    margin-top: 10px;
-    font-size: 0.83rem;
+    min-height: 16px;
+    margin-top: 8px;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
@@ -655,9 +685,9 @@ button {
 }
 
 .cart-discount-applied {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .cart-discount-applied-row,
@@ -669,26 +699,26 @@ button {
 }
 
 .cart-discount-applied-row {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     color: var(--text-primary);
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     font-weight: 700;
 }
 
 .cart-discount-applied-value {
     display: block;
     color: #7bc89c;
-    font-size: 0.84rem;
+    font-size: 0.78rem;
     font-weight: 700;
 }
 
 .cart-discount-remove {
-    padding: 6px 10px;
+    padding: 4px 8px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-secondary);
-    font-size: 0.76rem;
-    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.72rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .cart-discount-remove:hover {
@@ -697,9 +727,9 @@ button {
 }
 
 .cart-summary-line {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .cart-summary-line span:last-child,
@@ -714,9 +744,9 @@ button {
 .cart-total {
     display: flex;
     justify-content: space-between;
-    font-size: 1.15rem;
+    font-size: 1.02rem;
     font-weight: 700;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     color: var(--text-primary);
 }
 
@@ -725,50 +755,48 @@ button {
 }
 
 .cart-shipping-status {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .cart-shipping-status p {
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     color: var(--text-secondary);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .cart-shipping-bar {
     width: 100%;
-    height: 12px;
-    background: rgba(255,255,255,0.08);
+    height: 9px;
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 999px;
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .cart-shipping-bar span {
     display: block;
     height: 100%;
     width: 0;
-    background: repeating-linear-gradient(
-        -45deg,
-        var(--gold-dark) 0 10px,
-        var(--gold-primary) 10px 20px
-    );
+    background: repeating-linear-gradient(-45deg,
+            var(--gold-dark) 0 10px,
+            var(--gold-primary) 10px 20px);
     border-radius: inherit;
     transition: width var(--transition-base);
 }
 
 .btn-checkout {
     width: 100%;
-    padding: 14px;
+    padding: 12px;
     border-radius: var(--radius-md);
     background: #25D366;
     color: white;
-    font-size: 1.05rem;
+    font-size: 0.96rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 8px;
 }
 
 .btn-checkout:hover {
@@ -779,12 +807,12 @@ button {
 
 .btn-clear-cart {
     width: 100%;
-    padding: 10px;
+    padding: 9px;
     border-radius: var(--radius-md);
     background: transparent;
     color: var(--text-muted);
-    font-size: 0.85rem;
-    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .btn-clear-cart:hover {
@@ -823,12 +851,10 @@ button {
 .slide-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(10, 10, 10, 0.5) 0%,
-        rgba(10, 10, 10, 0.3) 40%,
-        rgba(10, 10, 10, 0.7) 100%
-    );
+    background: linear-gradient(to bottom,
+            rgba(10, 10, 10, 0.5) 0%,
+            rgba(10, 10, 10, 0.3) 40%,
+            rgba(10, 10, 10, 0.7) 100%);
 }
 
 .slide-content {
@@ -866,7 +892,7 @@ button {
     font-weight: 800;
     line-height: 1.3;
     margin-bottom: 16px;
-    text-shadow: 2px 4px 20px rgba(0,0,0,0.5);
+    text-shadow: 2px 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .slide-content p {
@@ -972,8 +998,15 @@ button {
 }
 
 @keyframes scrollBounce {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(8px); }
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(8px);
+    }
 }
 
 /* ===== Features Bar ===== */
@@ -1215,7 +1248,7 @@ button {
     font-size: 0.75rem;
     color: var(--text-muted);
     padding: 3px 10px;
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 20px;
     margin-bottom: 12px;
 }
@@ -1225,7 +1258,7 @@ button {
     align-items: center;
     gap: 16px;
     padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .price-tag {
@@ -1255,7 +1288,7 @@ button {
 .price-separator {
     width: 1px;
     height: 30px;
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 /* ===== Best Sellers Section ===== */
@@ -1347,8 +1380,13 @@ button {
 }
 
 @keyframes rotateSlow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .about-text .section-badge {
@@ -1605,7 +1643,7 @@ button {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     color: white;
     display: flex;
     align-items: center;
@@ -1661,7 +1699,7 @@ button {
     align-items: center;
     gap: 6px;
     padding: 5px 14px;
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 20px;
     font-size: 0.82rem;
     color: var(--text-muted);
@@ -1793,8 +1831,15 @@ button {
 }
 
 @keyframes whatsappPulse {
-    0%, 100% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); }
-    50% { box-shadow: 0 4px 30px rgba(37, 211, 102, 0.6), 0 0 0 12px rgba(37, 211, 102, 0.1); }
+
+    0%,
+    100% {
+        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 4px 30px rgba(37, 211, 102, 0.6), 0 0 0 12px rgba(37, 211, 102, 0.1);
+    }
 }
 
 /* ===== Back to Top ===== */
@@ -1987,7 +2032,7 @@ button {
         display: block;
         width: 40px;
         height: 4px;
-        background: rgba(255,255,255,0.25);
+        background: rgba(255, 255, 255, 0.25);
         border-radius: 4px;
         margin: 10px auto 0;
         z-index: 20;
@@ -1999,8 +2044,8 @@ button {
         width: 32px;
         height: 32px;
         font-size: 0.85rem;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .modal-body {
@@ -2278,7 +2323,7 @@ button {
 .mobile-nav-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1400;
     opacity: 0;
     visibility: hidden;

@@ -834,6 +834,19 @@ document.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
     updateCartUI();
 
+    // Load saved customer info
+    try {
+        const savedInfo = JSON.parse(localStorage.getItem('hr_customer_info'));
+        if (savedInfo) {
+            const nameEl = document.getElementById('customer-name');
+            const phoneEl = document.getElementById('customer-phone');
+            const locationEl = document.getElementById('customer-location');
+            if (nameEl) nameEl.value = savedInfo.name || '';
+            if (phoneEl) phoneEl.value = savedInfo.phone || '';
+            if (locationEl) locationEl.value = savedInfo.location || '';
+        }
+    } catch (e) {}
+
     // Delay scroll animations to after products load
     setTimeout(initScrollAnimations, 500);
     setTimeout(animateCounters, 500);
