@@ -25,6 +25,48 @@ function formatCurrency(value) {
     return `${Number(value).toFixed(2)} \u062f.\u0623`;
 }
 
+function getProductCategory(productOrGender) {
+    const rawValue = typeof productOrGender === 'string'
+        ? productOrGender
+        : productOrGender?.gender;
+    const normalized = String(rawValue || '').trim().toLowerCase();
+
+    if (normalized === 'him') return 'Him';
+    if (normalized === 'her') return 'Her';
+    if (normalized === 'unisex') return 'Unisex';
+    if (normalized === 'niche') return 'niche';
+
+    return rawValue || '';
+}
+
+function getProductBottlePrice(product) {
+    return getProductCategory(product) === 'niche'
+        ? 20
+        : (Number(product?.price_100ml) || 0);
+}
+
+function getGenderArabic(gender) {
+    const map = {
+        Him: 'Ù„Ù„Ø±Ø¬Ø§Ù„',
+        Her: 'Ù„Ù„Ù†Ø³Ø§Ø¡',
+        Unisex: 'Ù„Ù„Ø¬Ù†Ø³ÙŠÙ†',
+        niche: '\u0639\u0637\u0648\u0631 \u0627\u0644\u0646\u064a\u0634'
+    };
+    const category = getProductCategory(gender);
+    return map[category] || category;
+}
+
+function getGenderIcon(gender) {
+    const map = {
+        Him: 'fas fa-mars',
+        Her: 'fas fa-venus',
+        Unisex: 'fas fa-venus-mars',
+        niche: 'fas fa-gem'
+    };
+    const category = getProductCategory(gender);
+    return map[category] || 'fas fa-user';
+}
+
 function normalizeCartItem(item) {
     if (!item || !item.key) return null;
 
@@ -71,6 +113,53 @@ function getDiscountDescription(code) {
         : `\u062e\u0635\u0645 ${formatCurrency(discount.value)}`;
 }
 
+function shouldCompactCartDiscount() {
+    return window.innerWidth <= 768;
+}
+
+function syncDiscountCollapseState(forceExpanded = null) {
+    const section = $('#cart-discount-section');
+    const toggleBtn = $('#discount-toggle-btn');
+    const toggleHint = $('#discount-toggle-hint');
+
+    if (!section || !toggleBtn || !toggleHint) return;
+
+    const hasAppliedCode = Boolean(appliedDiscountCode && getDiscountCodeDefinition(appliedDiscountCode));
+    const isCompact = shouldCompactCartDiscount();
+    let expanded = true;
+
+    if (typeof forceExpanded === 'boolean') {
+        expanded = forceExpanded;
+    } else if (hasAppliedCode) {
+        expanded = true;
+    } else if (section.classList.contains('is-expanded')) {
+        expanded = true;
+    } else if (section.classList.contains('is-collapsed')) {
+        expanded = false;
+    } else {
+        expanded = !isCompact;
+    }
+
+    section.classList.toggle('is-expanded', expanded);
+    section.classList.toggle('is-collapsed', !expanded);
+    toggleBtn.setAttribute('aria-expanded', String(expanded));
+    toggleHint.textContent = hasAppliedCode
+        ? '\u0645\u0637\u0628\u0642'
+        : (isCompact ? (expanded ? '\u0625\u062e\u0641\u0627\u0621' : '\u0625\u0636\u0627\u0641\u0629') : '\u0627\u062e\u062a\u064a\u0627\u0631\u064a');
+}
+
+function toggleDiscountSection() {
+    const section = $('#cart-discount-section');
+    if (!section) return;
+
+    const nextExpandedState = !section.classList.contains('is-expanded');
+    syncDiscountCollapseState(nextExpandedState);
+
+    if (nextExpandedState) {
+        setTimeout(() => $('#discount-code-input')?.focus(), 140);
+    }
+}
+
 function setDiscountValidationMessage(message = '', state = '') {
     const messageEl = $('#discount-validation-message');
     if (!messageEl) return;
@@ -100,6 +189,8 @@ function syncDiscountUI() {
     } else if (appliedBox) {
         appliedBox.style.display = 'none';
     }
+
+    syncDiscountCollapseState();
 }
 
 function applyDiscountCode() {
@@ -124,6 +215,7 @@ function applyDiscountCode() {
     appliedDiscountCode = code;
     localStorage.setItem('hr_discount_code', appliedDiscountCode);
     updateCartUI();
+    syncDiscountCollapseState(true);
     setDiscountValidationMessage('\u062a\u0645 \u062a\u0637\u0628\u064a\u0642 \u0627\u0644\u0643\u0648\u062f \u0628\u0646\u062c\u0627\u062d', 'applied');
 }
 
@@ -133,6 +225,7 @@ function removeDiscountCode() {
     const input = $('#discount-code-input');
     if (input) input.value = '';
     updateCartUI();
+    syncDiscountCollapseState(false);
     setDiscountValidationMessage('', '');
 }
 
@@ -187,6 +280,50 @@ function getGenderIcon(gender) {
     return map[gender] || 'fas fa-user';
 }
 
+function getGenderArabic(gender) {
+    const map = {
+        Him: 'Ù„Ù„Ø±Ø¬Ø§Ù„',
+        Her: 'Ù„Ù„Ù†Ø³Ø§Ø¡',
+        Unisex: 'Ù„Ù„Ø¬Ù†Ø³ÙŠÙ†',
+        niche: '\u0639\u0637\u0648\u0631 \u0627\u0644\u0646\u064a\u0634'
+    };
+    const category = getProductCategory(gender);
+    return map[category] || category;
+}
+
+function getGenderIcon(gender) {
+    const map = {
+        Him: 'fas fa-mars',
+        Her: 'fas fa-venus',
+        Unisex: 'fas fa-venus-mars',
+        niche: 'fas fa-gem'
+    };
+    const category = getProductCategory(gender);
+    return map[category] || 'fas fa-user';
+}
+
+function getGenderArabic(gender) {
+    const map = {
+        Him: '\u0644\u0644\u0631\u062c\u0627\u0644',
+        Her: '\u0644\u0644\u0646\u0633\u0627\u0621',
+        Unisex: '\u0644\u0644\u062c\u0646\u0633\u064a\u0646',
+        niche: '\u0639\u0637\u0648\u0631 \u0627\u0644\u0646\u064a\u0634'
+    };
+    const category = getProductCategory(gender);
+    return map[category] || category;
+}
+
+function getGenderIcon(gender) {
+    const map = {
+        Him: 'fas fa-mars',
+        Her: 'fas fa-venus',
+        Unisex: 'fas fa-venus-mars',
+        niche: 'fas fa-gem'
+    };
+    const category = getProductCategory(gender);
+    return map[category] || 'fas fa-user';
+}
+
 // ===== Render Product Card =====
 function createProductCard(product, index) {
     const card = document.createElement('div');
@@ -211,7 +348,7 @@ function createProductCard(product, index) {
             <div class="product-prices">
                 <div class="price-tag">
                     <span class="price-size">100ml</span>
-                    <span class="price-value">${product.price_100ml} <span class="price-currency">\u062f.\u0623</span></span>
+                    <span class="price-value">${getProductBottlePrice(product)} <span class="price-currency">\u062f.\u0623</span></span>
                 </div>
             </div>
         </div>
@@ -257,7 +394,7 @@ function openProductModal(product) {
     $('#modal-brand').textContent = product.brand;
     $('#modal-name').textContent = product.name;
     $('#modal-gender').innerHTML = `<i class="${getGenderIcon(product.gender)}"></i> ${getGenderArabic(product.gender)}`;
-    $('#price-100').textContent = `${product.price_100ml} \u062f.\u0623`;
+    $('#price-100').textContent = `${getProductBottlePrice(product)} \u062f.\u0623`;
     $('#qty-value').textContent = '1';
 
     // Reset size selection
@@ -281,7 +418,7 @@ function closeProductModal() {
 function addToCart(product, size, qty) {
     const cartKey = `${product.ID}-${size}`;
     const existingItem = cart.find(item => item.key === cartKey);
-    const price = product.price_100ml;
+    const price = getProductBottlePrice(product);
 
     if (existingItem) {
         existingItem.qty += qty;
@@ -307,6 +444,24 @@ function addToCart(product, size, qty) {
     const cartCount = $('#cart-count');
     cartCount.classList.add('bump');
     setTimeout(() => cartCount.classList.remove('bump'), 300);
+}
+
+function ensureNicheFilterUI() {
+    const filterBar = $('.filter-bar');
+    if (filterBar && !filterBar.querySelector('[data-filter="niche"]')) {
+        const nicheBtn = document.createElement('button');
+        nicheBtn.className = 'filter-btn';
+        nicheBtn.dataset.filter = 'niche';
+        nicheBtn.innerHTML = '<i class="fas fa-gem"></i> \u0639\u0637\u0648\u0631 \u0627\u0644\u0646\u064a\u0634';
+        filterBar.appendChild(nicheBtn);
+    }
+
+    const footerCategoryList = $('[data-filter-link="Unisex"]')?.closest('ul');
+    if (footerCategoryList && !footerCategoryList.querySelector('[data-filter-link="niche"]')) {
+        const nicheLinkItem = document.createElement('li');
+        nicheLinkItem.innerHTML = '<a href="#products" data-filter-link="niche">\u0639\u0637\u0648\u0631 \u0627\u0644\u0646\u064a\u0634</a>';
+        footerCategoryList.appendChild(nicheLinkItem);
+    }
 }
 
 function removeFromCart(key) {
@@ -450,12 +605,19 @@ function openCart() {
     $('#cart-sidebar').classList.add('active');
     $('#cart-overlay').classList.add('active');
     document.body.style.overflow = 'hidden';
+    syncDiscountCollapseState();
 }
 
 function closeCart() {
     $('#cart-sidebar').classList.remove('active');
     $('#cart-overlay').classList.remove('active');
     document.body.style.overflow = '';
+}
+
+function goToCheckoutPage() {
+    if (cart.length === 0) return;
+
+    window.location.href = 'checkout.html';
 }
 
 // ===== WhatsApp Checkout =====
@@ -695,7 +857,7 @@ function initFilters() {
             if (filter === 'all') {
                 filtered = allProducts;
             } else {
-                filtered = allProducts.filter(p => p.gender === filter);
+                filtered = allProducts.filter(p => getProductCategory(p) === filter);
             }
 
             renderProducts(filtered);
@@ -712,7 +874,7 @@ function initFilters() {
                 const targetBtn = $(`.filter-btn[data-filter="${filter}"]`);
                 if (targetBtn) {
                     targetBtn.classList.add('active');
-                    const filtered = allProducts.filter(p => p.gender === filter);
+                    const filtered = allProducts.filter(p => getProductCategory(p) === filter);
                     renderProducts(filtered);
                 }
             }, 500);
@@ -728,7 +890,7 @@ function initEventListeners() {
     $('#cart-overlay').addEventListener('click', closeCart);
 
     // Checkout
-    $('#btn-checkout').addEventListener('click', sendWhatsAppOrder);
+    $('#btn-checkout').addEventListener('click', goToCheckoutPage);
     $('#btn-clear-cart').addEventListener('click', () => {
         if (confirm('هل أنت متأكد من تفريغ السلة؟')) {
             clearCart();
@@ -738,6 +900,7 @@ function initEventListeners() {
     const discountInput = $("#discount-code-input");
     const discountApplyBtn = $("#discount-apply-btn");
     const discountRemoveBtn = $("#discount-remove-btn");
+    const discountToggleBtn = $("#discount-toggle-btn");
 
     discountInput.addEventListener("input", handleDiscountInput);
     discountInput.addEventListener("keydown", (e) => {
@@ -748,6 +911,8 @@ function initEventListeners() {
     });
     discountApplyBtn.addEventListener("click", applyDiscountCode);
     discountRemoveBtn.addEventListener("click", removeDiscountCode);
+    discountToggleBtn.addEventListener("click", toggleDiscountSection);
+    window.addEventListener("resize", () => syncDiscountCollapseState());
 
     // Product modal
     $('#modal-close').addEventListener('click', closeProductModal);
@@ -830,9 +995,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initSlider();
     initHeaderScroll();
     initMobileMenu();
+    ensureNicheFilterUI();
     initFilters();
     initEventListeners();
     updateCartUI();
+
+    const checkoutBtn = $('#btn-checkout');
+    if (checkoutBtn) {
+        checkoutBtn.innerHTML = '<i class="fas fa-arrow-left"></i> \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0637\u0644\u0628';
+    }
 
     // Load saved customer info
     try {

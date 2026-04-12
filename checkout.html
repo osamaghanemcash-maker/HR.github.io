@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إتمام الطلب | H&R Perfume</title>
+    <meta name="description" content="أكمل طلبك من H&R Perfume وأرسل تفاصيل الطلب عبر واتساب.">
+    <link rel="icon" type="image/png" href="logo without background.png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="checkout.css">
+</head>
+
+<body class="checkout-page">
+    <header class="checkout-header">
+        <div class="header-top">
+            <div class="container">
+                <span><i class="fas fa-shipping-fast"></i> توصيل مجاني للطلبات التي تتجاوز 60 د.أ</span>
+                <span><i class="fas fa-gem"></i> عطور فاخرة بأسعار مميزة</span>
+            </div>
+        </div>
+        <nav class="navbar">
+            <div class="container navbar-content">
+                <a href="index.html" class="logo">
+                    <img src="logo without background.png" alt="H&R Perfume">
+                </a>
+                <ul class="nav-links checkout-nav-links">
+                    <li><a href="index.html#home" class="nav-link">الرئيسية</a></li>
+                    <li><a href="index.html#products" class="nav-link">المتجر</a></li>
+                    <li><a href="index.html#contact" class="nav-link">تواصل معنا</a></li>
+                </ul>
+                <a href="index.html" class="checkout-back-link">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>العودة للمتجر</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="checkout-main">
+        <section class="checkout-hero">
+            <div class="container">
+                <div class="checkout-breadcrumbs">
+                    <a href="index.html">المتجر</a>
+                    <span><i class="fas fa-angle-left"></i></span>
+                    <span>إتمام الطلب</span>
+                </div>
+                <div class="checkout-hero-copy">
+                    <span class="section-badge">خطوة أخيرة</span>
+                    <h1>إتمام الطلب</h1>
+                    <p>راجع منتجاتك وأدخل بيانات التوصيل، ثم أرسل الطلب مباشرة عبر واتساب.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="checkout-content">
+            <div class="container">
+                <div class="checkout-grid">
+                    <section class="checkout-form-card">
+                        <div class="checkout-section-head">
+                            <h2>تفاصيل الفاتورة</h2>
+                            <p>املأ البيانات الأساسية حتى نجهز طلبك بسرعة.</p>
+                        </div>
+
+                        <div class="checkout-free-shipping" id="checkout-free-shipping">
+                            <div class="checkout-free-shipping-copy">
+                                <strong id="checkout-shipping-message">أضف المزيد للحصول على شحن مجاني.</strong>
+                                <span>الشحن المجاني متاح للطلبات فوق 60 د.أ.</span>
+                            </div>
+                            <div class="checkout-shipping-bar">
+                                <span id="checkout-shipping-progress"></span>
+                            </div>
+                        </div>
+
+                        <form class="checkout-form" id="checkout-form" novalidate>
+                            <div class="checkout-form-grid">
+                                <label class="checkout-field">
+                                    <span>الاسم الأول <em>*</em></span>
+                                    <input type="text" id="customer-first-name" name="firstName" autocomplete="given-name"
+                                        required>
+                                </label>
+
+                                <label class="checkout-field">
+                                    <span>الاسم الأخير <em>*</em></span>
+                                    <input type="text" id="customer-last-name" name="lastName" autocomplete="family-name"
+                                        required>
+                                </label>
+                            </div>
+
+                            <div class="checkout-form-grid">
+                                <label class="checkout-field">
+                                    <span>رقم الهاتف <em>*</em></span>
+                                    <input type="tel" id="customer-phone" name="phone" dir="ltr" autocomplete="tel"
+                                        placeholder="+9627XXXXXXXX" required>
+                                </label>
+
+                                <label class="checkout-field">
+                                    <span>المحافظة / المنطقة <em>*</em></span>
+                                    <select id="customer-governorate" name="governorate" required>
+                                        <option value="">اختر المنطقة</option>
+                                        <option>عمّان</option>
+                                        <option>الزرقاء</option>
+                                        <option>إربد</option>
+                                        <option>العقبة</option>
+                                        <option>السلط</option>
+                                        <option>مادبا</option>
+                                        <option>جرش</option>
+                                        <option>عجلون</option>
+                                        <option>الكرك</option>
+                                        <option>الطفيلة</option>
+                                        <option>معان</option>
+                                        <option>المفرق</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <label class="checkout-field">
+                                <span>عنوان الشارع / الحي <em>*</em></span>
+                                <input type="text" id="customer-address" name="address"
+                                    placeholder="رقم المنزل، اسم الشارع، الحي" autocomplete="street-address" required>
+                            </label>
+
+                            <label class="checkout-field">
+                                <span>ملاحظات الطلب <small>(اختياري)</small></span>
+                                <textarea id="customer-notes" name="notes" rows="5"
+                                    placeholder="أي ملاحظات تساعدنا في تجهيز وتسليم الطلب."></textarea>
+                            </label>
+
+                            <div class="checkout-method-card">
+                                <div>
+                                    <h3>طريقة الدفع</h3>
+                                    <p>الدفع عند الاستلام</p>
+                                </div>
+                                <span><i class="fas fa-money-bill-wave"></i></span>
+                            </div>
+
+                            <p class="checkout-privacy-note">
+                                سنستخدم بياناتك فقط لتجهيز الطلب والتواصل معك بخصوص التوصيل.
+                            </p>
+                        </form>
+                    </section>
+
+                    <aside class="checkout-summary-card">
+                        <div class="checkout-section-head">
+                            <h2>طلبك</h2>
+                            <p>يمكنك تعديل الكمية أو حذف أي منتج قبل الإرسال.</p>
+                        </div>
+
+                        <div class="checkout-discount-pill" id="checkout-discount-pill" style="display:none;">
+                            <i class="fas fa-badge-percent"></i>
+                            <span id="checkout-discount-pill-text"></span>
+                        </div>
+
+                        <div class="checkout-items" id="checkout-items"></div>
+
+                        <div class="checkout-empty-state" id="checkout-empty" style="display:none;">
+                            <i class="fas fa-shopping-bag"></i>
+                            <h3>سلتك فارغة</h3>
+                            <p>أضف بعض المنتجات أولاً ثم عد لإتمام الطلب.</p>
+                            <a href="index.html#products" class="btn-primary">العودة للتسوق</a>
+                        </div>
+
+                        <div class="checkout-totals" id="checkout-totals">
+                            <div class="checkout-total-line">
+                                <span>المجموع الفرعي</span>
+                                <strong id="checkout-subtotal">0 د.أ</strong>
+                            </div>
+                            <div class="checkout-total-line checkout-total-line-discount" id="checkout-discount-row"
+                                style="display:none;">
+                                <span>قيمة الخصم</span>
+                                <strong id="checkout-discount">-0 د.أ</strong>
+                            </div>
+                            <div class="checkout-total-line checkout-total-line-final">
+                                <span>المجموع النهائي</span>
+                                <strong id="checkout-total">0 د.أ</strong>
+                            </div>
+                        </div>
+
+                        <button class="checkout-submit-btn" id="confirm-order-btn" type="submit" form="checkout-form">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>تأكيد الطلب عبر واتساب</span>
+                        </button>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer checkout-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="logo without background.png" alt="H&R Perfume" class="footer-logo">
+                    <p>لمسة من الفخامة في كل قطرة</p>
+                    <div class="footer-socials">
+                        <a href="https://wa.me/962797107408" target="_blank" aria-label="واتساب"><i
+                                class="fab fa-whatsapp"></i></a>
+                        <a href="https://instagram.com/hadeelandrama" target="_blank" aria-label="انستغرام"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="https://facebook.com/hadeelandrama" target="_blank" aria-label="فيسبوك"><i
+                                class="fab fa-facebook-f"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html#home">الرئيسية</a></li>
+                        <li><a href="index.html#products">المتجر</a></li>
+                        <li><a href="index.html#best-sellers">الأكثر مبيعاً</a></li>
+                        <li><a href="index.html#contact">تواصل معنا</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>الدعم</h4>
+                    <ul>
+                        <li><a href="tel:+962797107408"><i class="fas fa-phone"></i> +962 79 710 7408</a></li>
+                        <li><a href="https://wa.me/962797107408" target="_blank"><i class="fab fa-whatsapp"></i>
+                                واتساب</a></li>
+                        <li><a href="https://instagram.com/hadeelandrama" target="_blank"><i
+                                    class="fab fa-instagram"></i> @hadeelandrama</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 H&R Perfume. جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="checkout.js"></script>
+</body>
+
+</html>

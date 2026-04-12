@@ -79,24 +79,31 @@
             </div>
         </div>
         <div class="cart-footer" id="cart-footer" style="display:none;">
-            <div class="cart-discount-section">
-                <label class="cart-discount-label" for="discount-code-input">&#1603;&#1608;&#1583;
-                    &#1575;&#1604;&#1582;&#1589;&#1605;</label>
-                <div class="cart-discount-form">
-                    <input type="text" id="discount-code-input" class="cart-discount-input"
-                        placeholder="&#1571;&#1583;&#1582;&#1604; &#1603;&#1608;&#1583; &#1575;&#1604;&#1582;&#1589;&#1605;"
-                        dir="rtl" autocomplete="off">
-                    <button class="cart-discount-btn" id="discount-apply-btn" type="button"
-                        disabled>&#1578;&#1591;&#1576;&#1610;&#1602;</button>
-                </div>
-                <p class="cart-discount-message" id="discount-validation-message"></p>
-                <div class="cart-discount-applied" id="discount-applied-box" style="display:none;">
-                    <div class="cart-discount-applied-row">
-                        <span id="discount-applied-code"></span>
-                        <button class="cart-discount-remove" id="discount-remove-btn"
-                            type="button">&#1573;&#1586;&#1575;&#1604;&#1577;</button>
+            <div class="cart-discount-section" id="cart-discount-section">
+                <button class="cart-discount-toggle" id="discount-toggle-btn" type="button" aria-expanded="true">
+                    <span class="cart-discount-toggle-text">
+                        <span class="cart-discount-label">&#1603;&#1608;&#1583; &#1575;&#1604;&#1582;&#1589;&#1605;</span>
+                        <span class="cart-discount-toggle-hint" id="discount-toggle-hint"></span>
+                    </span>
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                </button>
+                <div class="cart-discount-content" id="discount-content">
+                    <div class="cart-discount-form">
+                        <input type="text" id="discount-code-input" class="cart-discount-input"
+                            placeholder="&#1571;&#1583;&#1582;&#1604; &#1603;&#1608;&#1583; &#1575;&#1604;&#1582;&#1589;&#1605;"
+                            dir="rtl" autocomplete="off">
+                        <button class="cart-discount-btn" id="discount-apply-btn" type="button"
+                            disabled>&#1578;&#1591;&#1576;&#1610;&#1602;</button>
                     </div>
-                    <span class="cart-discount-applied-value" id="discount-applied-value"></span>
+                    <p class="cart-discount-message" id="discount-validation-message"></p>
+                    <div class="cart-discount-applied" id="discount-applied-box" style="display:none;">
+                        <div class="cart-discount-applied-row">
+                            <span id="discount-applied-code"></span>
+                            <button class="cart-discount-remove" id="discount-remove-btn"
+                                type="button">&#1573;&#1586;&#1575;&#1604;&#1577;</button>
+                        </div>
+                        <span class="cart-discount-applied-value" id="discount-applied-value"></span>
+                    </div>
                 </div>
             </div>
             <div class="cart-summary-line">
