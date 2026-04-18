@@ -6,6 +6,13 @@ const DISCOUNT_CODES = {
 let cart = [];
 let appliedDiscountCode = '';
 
+function generateOrderNumber() {
+    let orderCounter = parseInt(localStorage.getItem('hr_order_counter') || '1000');
+    orderCounter++;
+    localStorage.setItem('hr_order_counter', orderCounter.toString());
+    return `#ORD-${orderCounter}`;
+}
+
 const $ = (sel) => document.querySelector(sel);
 
 function formatCurrency(value) {
@@ -237,13 +244,14 @@ function validateForm() {
     return true;
 }
 
-function buildWhatsAppMessage() {
+function buildWhatsAppMessage(orderNumber) {
     const fields = getCustomerFields();
     const { subtotal, discountAmount, finalTotal } = getCartTotals();
     const fullName = `${fields.firstName.value.trim()} ${fields.lastName.value.trim()}`.trim();
     const notes = fields.notes.value.trim();
 
-    let message = '*طلب جديد من H&R Perfume*\n\n';
+    let message = `*طلب جديد من H&R Perfume*\n`;
+    message += `*رقم الطلب: ${orderNumber}*\n\n`;
     message += `الاسم: ${fullName}\n`;
     message += `الهاتف: ${fields.phone.value.trim()}\n`;
     message += `المنطقة: ${fields.governorate.value}\n`;
@@ -282,8 +290,17 @@ function handleSubmit(event) {
     if (!validateForm()) return;
 
     saveCustomerInfo();
-    const encoded = encodeURIComponent(buildWhatsAppMessage());
+    const orderNumber = generateOrderNumber();
+    const encoded = encodeURIComponent(buildWhatsAppMessage(orderNumber));
     window.open(`https://wa.me/962797107408?text=${encoded}`, '_blank');
+
+    // Show order number to customer
+    const toast = document.createElement('div');
+    toast.className = 'order-toast';
+    toast.innerHTML = `<i class="fas fa-check-circle"></i> تم إرسال طلبك <strong>${orderNumber}</strong>`;
+    toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:16px 28px;border-radius:12px;z-index:9999;font-size:1rem;display:flex;align-items:center;gap:10px;border:1px solid rgba(191,197,204,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:slideDown .4s ease';
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .4s'; setTimeout(() => toast.remove(), 400); }, 5000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -16,6 +16,8 @@ let selectedProduct = null;
 let selectedSize = '100ml';
 let selectedQty = 1;
 let appliedDiscountCode = '';
+let visibleProductsCount = 8;
+const PRODUCTS_PER_PAGE = 8;
 
 // ===== DOM Elements =====
 const $ = (sel) => document.querySelector(sel);
@@ -47,9 +49,9 @@ function getProductBottlePrice(product) {
 
 function getGenderArabic(gender) {
     const map = {
-        Him: 'Ù„Ù„Ø±Ø¬Ø§Ù„',
-        Her: 'Ù„Ù„Ù†Ø³Ø§Ø¡',
-        Unisex: 'Ù„Ù„Ø¬Ù†Ø³ÙŠÙ†',
+        Him: '\u0644\u0644\u0631\u062c\u0627\u0644',
+        Her: '\u0644\u0644\u0646\u0633\u0627\u0621',
+        Unisex: '\u0644\u0644\u062c\u0646\u0633\u064a\u0646',
         niche: '\u0639\u0637\u0648\u0631 \u0627\u0644\u0646\u064a\u0634'
     };
     const category = getProductCategory(gender);
@@ -201,7 +203,7 @@ function applyDiscountCode() {
     input.value = code;
 
     if (!code) {
-        setDiscountValidationMessage('\u0627\u0644\u0631\u062c\u0627\u0621 \u0625\u062f\u062e\u0627\u0644 \u0643\u0648\u062f \u062e\u0635\u0645', 'invalid');
+        setDiscountValidationMessage('\u0627\u0644\u0631\u062c\u0627\u0621 \u0625\u062f\u062e\u0624\u0644 \u0643\u0648\u062f \u062e\u0635\u0645', 'invalid');
         input.focus();
         return;
     }
@@ -269,60 +271,6 @@ async function fetchProducts() {
     }
 }
 
-// ===== Gender Map =====
-function getGenderArabic(gender) {
-    const map = { 'Him': 'للرجال', 'Her': 'للنساء', 'Unisex': 'للجنسين' };
-    return map[gender] || gender;
-}
-
-function getGenderIcon(gender) {
-    const map = { 'Him': 'fas fa-mars', 'Her': 'fas fa-venus', 'Unisex': 'fas fa-venus-mars' };
-    return map[gender] || 'fas fa-user';
-}
-
-function getGenderArabic(gender) {
-    const map = {
-        Him: 'Ù„Ù„Ø±Ø¬Ø§Ù„',
-        Her: 'Ù„Ù„Ù†Ø³Ø§Ø¡',
-        Unisex: 'Ù„Ù„Ø¬Ù†Ø³ÙŠÙ†',
-        niche: '\u0639\u0637\u0648\u0631 \u0627\u0644\u0646\u064a\u0634'
-    };
-    const category = getProductCategory(gender);
-    return map[category] || category;
-}
-
-function getGenderIcon(gender) {
-    const map = {
-        Him: 'fas fa-mars',
-        Her: 'fas fa-venus',
-        Unisex: 'fas fa-venus-mars',
-        niche: 'fas fa-gem'
-    };
-    const category = getProductCategory(gender);
-    return map[category] || 'fas fa-user';
-}
-
-function getGenderArabic(gender) {
-    const map = {
-        Him: '\u0644\u0644\u0631\u062c\u0627\u0644',
-        Her: '\u0644\u0644\u0646\u0633\u0627\u0621',
-        Unisex: '\u0644\u0644\u062c\u0646\u0633\u064a\u0646',
-        niche: '\u0639\u0637\u0648\u0631 \u0627\u0644\u0646\u064a\u0634'
-    };
-    const category = getProductCategory(gender);
-    return map[category] || category;
-}
-
-function getGenderIcon(gender) {
-    const map = {
-        Him: 'fas fa-mars',
-        Her: 'fas fa-venus',
-        Unisex: 'fas fa-venus-mars',
-        niche: 'fas fa-gem'
-    };
-    const category = getProductCategory(gender);
-    return map[category] || 'fas fa-user';
-}
 
 // ===== Render Product Card =====
 function createProductCard(product, index) {
@@ -340,7 +288,7 @@ function createProductCard(product, index) {
             </div>
         </div>
         <div class="product-info">
-            <h3 class="product-name">${product.name}</h3>
+            <h3 class="product-name">${product.name} - H&R</h3>
             <span class="product-gender">
                 <i class="${getGenderIcon(product.gender)}"></i>
                 ${getGenderArabic(product.gender)}
@@ -369,18 +317,43 @@ function renderBestSellers() {
 }
 
 // ===== Render Products =====
-function renderProducts(products) {
+let _currentFilteredProducts = [];
+
+function renderProducts(products, resetCount = true) {
     const grid = $('#products-grid');
+    const showMoreContainer = $('#show-more-container');
+    const showMoreCount = $('#show-more-count');
+
+    _currentFilteredProducts = products;
+    if (resetCount) visibleProductsCount = PRODUCTS_PER_PAGE;
+
     grid.innerHTML = '';
 
     if (products.length === 0) {
         grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px;font-size:1.1rem;">لا توجد منتجات في هذه الفئة</p>`;
+        if (showMoreContainer) showMoreContainer.style.display = 'none';
         return;
     }
 
-    products.forEach((product, index) => {
+    const toShow = products.slice(0, visibleProductsCount);
+    toShow.forEach((product, index) => {
         grid.appendChild(createProductCard(product, index));
     });
+
+    const remaining = products.length - visibleProductsCount;
+    if (showMoreContainer) {
+        if (remaining > 0) {
+            showMoreContainer.style.display = 'flex';
+            if (showMoreCount) showMoreCount.textContent = `(${remaining})`;
+        } else {
+            showMoreContainer.style.display = 'none';
+        }
+    }
+}
+
+function showMoreProducts() {
+    visibleProductsCount += PRODUCTS_PER_PAGE;
+    renderProducts(_currentFilteredProducts, false);
 }
 
 // ===== Product Modal =====
@@ -392,7 +365,7 @@ function openProductModal(product) {
     $('#modal-product-image').src = product.image_url;
     $('#modal-product-image').alt = product.name;
     $('#modal-brand').textContent = product.brand;
-    $('#modal-name').textContent = product.name;
+    $('#modal-name').textContent = product.name + ' -H&R ';
     $('#modal-gender').innerHTML = `<i class="${getGenderIcon(product.gender)}"></i> ${getGenderArabic(product.gender)}`;
     $('#price-100').textContent = `${getProductBottlePrice(product)} \u062f.\u0623`;
     $('#qty-value').textContent = '1';
@@ -620,12 +593,22 @@ function goToCheckoutPage() {
     window.location.href = 'checkout.html';
 }
 
+// ===== Order Number =====
+function generateOrderNumber() {
+    let orderCounter = parseInt(localStorage.getItem('hr_order_counter') || '1000');
+    orderCounter++;
+    localStorage.setItem('hr_order_counter', orderCounter.toString());
+    return `#ORD-${orderCounter}`;
+}
+
 // ===== WhatsApp Checkout =====
 function sendWhatsAppOrder() {
     if (cart.length === 0) return;
 
+    const orderNumber = generateOrderNumber();
     const { subtotal, discountAmount, finalTotal } = getCartTotals();
-    let message = '*\u0637\u0644\u0628 \u062c\u062f\u064a\u062f \u0645\u0646 H&R Perfume*\n\n';
+    let message = `*\u0637\u0644\u0628 \u062c\u062f\u064a\u062f \u0645\u0646 H&R Perfume*\n`;
+    message += `*\u0631\u0642\u0645 \u0627\u0644\u0637\u0644\u0628: ${orderNumber}*\n\n`;
     message += '------------------------------\n';
 
     cart.forEach((item, i) => {
@@ -643,6 +626,8 @@ function sendWhatsAppOrder() {
     }
     message += `\n*\u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0627\u0644\u0646\u0647\u0627\u0626\u064a: ${formatCurrency(finalTotal)}*\n`;
     message += '\n\u0623\u0631\u062c\u0648 \u062a\u0623\u0643\u064a\u062f \u0627\u0644\u0637\u0644\u0628. \u0634\u0643\u0631\u0627\u064b!';
+
+    showToast(`\u062a\u0645 \u0625\u0631\u0633\u0627\u0644 \u0637\u0644\u0628\u0643 ${orderNumber}`);
 
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/962797107408?text=${encoded}`, '_blank');
@@ -770,7 +755,7 @@ function animateCounters() {
 
 // ===== Header Scroll Effect =====
 function initHeaderScroll() {
-    let lastScroll = 0;
+
 
     window.addEventListener('scroll', () => {
         const header = $('#main-header');
@@ -806,7 +791,7 @@ function initHeaderScroll() {
             }
         });
 
-        lastScroll = scrollY;
+
     });
 }
 
@@ -859,23 +844,22 @@ function initFilters() {
             } else {
                 filtered = allProducts.filter(p => getProductCategory(p) === filter);
             }
-
-            renderProducts(filtered);
+            renderProducts(filtered, true);
         });
     });
 
     // Footer filter links
     $$('[data-filter-link]').forEach(link => {
         link.addEventListener('click', (e) => {
-            const filter = link.dataset.filterLink;
+            const filterLink = link.dataset.filterLink;
             // Activate the corresponding filter button
             setTimeout(() => {
                 $$('.filter-btn').forEach(b => b.classList.remove('active'));
-                const targetBtn = $(`.filter-btn[data-filter="${filter}"]`);
+                const targetBtn = $(`.filter-btn[data-filter="${filterLink}"]`);
                 if (targetBtn) {
                     targetBtn.classList.add('active');
-                    const filtered = allProducts.filter(p => getProductCategory(p) === filter);
-                    renderProducts(filtered);
+                    const filtered = allProducts.filter(p => getProductCategory(p) === filterLink);
+                    renderProducts(filtered, true);
                 }
             }, 500);
         });
@@ -891,6 +875,10 @@ function initEventListeners() {
 
     // Checkout
     $('#btn-checkout').addEventListener('click', goToCheckoutPage);
+
+    // Show more products
+    const showMoreBtn = $('#btn-show-more');
+    if (showMoreBtn) showMoreBtn.addEventListener('click', showMoreProducts);
     $('#btn-clear-cart').addEventListener('click', () => {
         if (confirm('هل أنت متأكد من تفريغ السلة؟')) {
             clearCart();
@@ -1000,36 +988,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
     updateCartUI();
 
-    const checkoutBtn = $('#btn-checkout');
-    if (checkoutBtn) {
-        checkoutBtn.innerHTML = '<i class="fas fa-arrow-left"></i> \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0637\u0644\u0628';
-    }
-
-    // Load saved customer info
-    try {
-        const savedInfo = JSON.parse(localStorage.getItem('hr_customer_info'));
-        if (savedInfo) {
-            const nameEl = document.getElementById('customer-name');
-            const phoneEl = document.getElementById('customer-phone');
-            const locationEl = document.getElementById('customer-location');
-            if (nameEl) nameEl.value = savedInfo.name || '';
-            if (phoneEl) phoneEl.value = savedInfo.phone || '';
-            if (locationEl) locationEl.value = savedInfo.location || '';
-        }
-    } catch (e) {}
 
     // Delay scroll animations to after products load
     setTimeout(initScrollAnimations, 500);
     setTimeout(animateCounters, 500);
 });
-
-
-
-
-
-
-
-
-
-
-

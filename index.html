@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H&R Perfume | لمسة من الفخامة في كل قطرة</title>
+    <title>H&amp;R Perfume | لمسة من الفخامة في كل قطرة</title>
     <meta name="description"
-        content="H&R Perfume - متجر العطور الفاخرة. اكتشف مجموعتنا المميزة من أفضل العطور العالمية للرجال والنساء. لمسة من الفخامة في كل قطرة.">
+        content="H&amp;R Perfume - متجر العطور الفاخرة. اكتشف مجموعتنا المميزة من أفضل العطور العالمية للرجال والنساء. لمسة من الفخامة في كل قطرة.">
     <link rel="icon" type="image/png" href="logo without background.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap"
@@ -20,7 +20,7 @@
     <!-- Loader -->
     <div id="page-loader" class="page-loader">
         <div class="loader-content">
-            <img src="logo without background.png" alt="H&R" class="loader-logo">
+            <img src="logo without background.png" alt="H&amp;R" class="loader-logo">
             <div class="loader-bar">
                 <div class="loader-bar-fill"></div>
             </div>
@@ -40,14 +40,32 @@
         <nav class="navbar">
             <div class="container navbar-content">
                 <a href="#" class="logo" id="nav-logo">
-                    <img src="logo without background.png" alt="H&R Perfume">
+                    <img src="logo without background.png" alt="H&amp;R Perfume">
                 </a>
                 <ul class="nav-links" id="nav-links">
-                    <li><a href="#home" class="nav-link active">الرئيسية</a></li>
-                    <li><a href="#best-sellers" class="nav-link">الأكثر مبيعاً</a></li>
-                    <li><a href="#products" class="nav-link">المنتجات</a></li>
-                    <li><a href="#about" class="nav-link">من نحن</a></li>
-                    <li><a href="#contact" class="nav-link">تواصل معنا</a></li>
+                    <div class="mobile-menu-header">
+                        <img src="logo without background.png" alt="H&R Perfume" class="mobile-menu-logo">
+                        <span class="mobile-menu-brand">H<span class="amp">&amp;</span>R Perfume</span>
+                        <span class="mobile-menu-tagline">الفخامة في كل قطرة</span>
+                    </div>
+                    <div class="mobile-menu-divider"></div>
+                    <li><a href="#home" class="nav-link active"><i class="fas fa-home"></i> الرئيسية</a></li>
+                    <li><a href="#best-sellers" class="nav-link"><i class="fas fa-fire"></i> الأكثر مبيعاً</a></li>
+                    <li><a href="#products" class="nav-link"><i class="fas fa-spray-can-sparkles"></i> المنتجات</a></li>
+                    <li><a href="#about" class="nav-link"><i class="fas fa-info-circle"></i> من نحن</a></li>
+                    <li><a href="#contact" class="nav-link"><i class="fas fa-envelope"></i> تواصل معنا</a></li>
+                    <div class="mobile-menu-divider"></div>
+                    <div class="mobile-menu-footer">
+                        <div class="mobile-menu-socials">
+                            <a href="https://wa.me/962797107408" target="_blank" aria-label="واتساب"><i
+                                    class="fab fa-whatsapp"></i></a>
+                            <a href="https://instagram.com/hadeelandrama" target="_blank" aria-label="انستغرام"><i
+                                    class="fab fa-instagram"></i></a>
+                            <a href="https://facebook.com/hadeelandrama" target="_blank" aria-label="فيسبوك"><i
+                                    class="fab fa-facebook-f"></i></a>
+                        </div>
+                        <span class="mobile-menu-copyright">© 2026 H&R Perfume</span>
+                    </div>
                 </ul>
                 <div class="nav-actions">
                     <button class="cart-btn" id="cart-toggle" aria-label="سلة التسوق">
@@ -82,7 +100,8 @@
             <div class="cart-discount-section" id="cart-discount-section">
                 <button class="cart-discount-toggle" id="discount-toggle-btn" type="button" aria-expanded="true">
                     <span class="cart-discount-toggle-text">
-                        <span class="cart-discount-label">&#1603;&#1608;&#1583; &#1575;&#1604;&#1582;&#1589;&#1605;</span>
+                        <span class="cart-discount-label">&#1603;&#1608;&#1583;
+                            &#1575;&#1604;&#1582;&#1589;&#1605;</span>
                         <span class="cart-discount-toggle-hint" id="discount-toggle-hint"></span>
                     </span>
                     <i class="fas fa-chevron-down" aria-hidden="true"></i>
@@ -193,7 +212,7 @@
                 </div>
             </div>
             <div class="feature-item">
-                <div class="feature-icon"><i class="fas fa-shield-check"></i></div>
+                <div class="feature-icon"><i class="fas fa-award"></i></div>
                 <div class="feature-text">
                     <h4>ضمان الجودة</h4>
                     <p>منتجات مختارة بعناية</p>
@@ -243,6 +262,13 @@
             <div class="products-grid" id="products-grid">
                 <!-- Populated by JS -->
             </div>
+            <div class="show-more-container" id="show-more-container" style="display:none;">
+                <button class="btn-show-more" id="btn-show-more">
+                    <i class="fas fa-th-large"></i>
+                    <span>عرض المزيد</span>
+                    <span class="show-more-count" id="show-more-count"></span>
+                </button>
+            </div>
         </div>
     </section>
 
@@ -251,13 +277,13 @@
         <div class="container">
             <div class="about-content">
                 <div class="about-image">
-                    <img src="logo without background.png" alt="H&R Perfume" class="about-logo">
+                    <img src="logo without background.png" alt="H&amp;R Perfume" class="about-logo">
                     <div class="about-image-decoration"></div>
                 </div>
                 <div class="about-text">
                     <span class="section-badge">تعرف علينا</span>
                     <h2>من نحن</h2>
-                    <p class="about-lead">H&R Perfume - وجهتك الأولى للعطور الفاخرة</p>
+                    <p class="about-lead">H&amp;R Perfume - وجهتك الأولى للعطور الفاخرة</p>
                     <p>نقدم لكم أرقى وأفخم العطور العالمية من أشهر الماركات. نحرص على اختيار كل عطر بعناية فائقة لنضمن
                         لكم تجربة استثنائية مع كل قطرة.</p>
                     <p>رسالتنا هي تقديم الفخامة بأسعار مناسبة للجميع، مع ضمان الجودة والأصالة في كل منتج نقدمه.</p>
@@ -319,7 +345,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <img src="logo without background.png" alt="H&R Perfume" class="footer-logo">
+                    <img src="logo without background.png" alt="H&amp;R Perfume" class="footer-logo">
                     <p>لمسة من الفخامة في كل قطرة</p>
                     <div class="footer-socials">
                         <a href="https://wa.me/962797107408" target="_blank" aria-label="واتساب"><i
@@ -360,7 +386,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 H&R Perfume. جميع الحقوق محفوظة</p>
+                <p>&copy; 2026 H&amp;R Perfume. جميع الحقوق محفوظة</p>
             </div>
         </div>
     </footer>
