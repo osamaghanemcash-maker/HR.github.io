@@ -13,6 +13,8 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="search.css">
+    <link rel="stylesheet" href="product-modal.css">
 </head>
 
 <body>
@@ -45,8 +47,7 @@
                 <ul class="nav-links" id="nav-links">
                     <div class="mobile-menu-header">
                         <img src="logo without background.png" alt="H&R Perfume" class="mobile-menu-logo">
-                        <span class="mobile-menu-brand">H<span class="amp">&amp;</span>R Perfume</span>
-                        <span class="mobile-menu-tagline">الفخامة في كل قطرة</span>
+                        
                     </div>
                     <div class="mobile-menu-divider"></div>
                     <li><a href="#home" class="nav-link active"><i class="fas fa-home"></i> الرئيسية</a></li>
@@ -68,6 +69,9 @@
                     </div>
                 </ul>
                 <div class="nav-actions">
+                    <button class="search-btn" id="search-toggle" aria-label="البحث">
+                        <i class="fas fa-search"></i>
+                    </button>
                     <button class="cart-btn" id="cart-toggle" aria-label="سلة التسوق">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="cart-count" id="cart-count">0</span>
@@ -258,6 +262,7 @@
                 <button class="filter-btn" data-filter="Him"><i class="fas fa-mars"></i> له</button>
                 <button class="filter-btn" data-filter="Her"><i class="fas fa-venus"></i> لها</button>
                 <button class="filter-btn" data-filter="Unisex"><i class="fas fa-venus-mars"></i> للجنسين</button>
+                <button class="filter-btn" data-filter="niche"><i class="fas fa-gem"></i> عطور النيش</button>
             </div>
             <div class="products-grid" id="products-grid">
                 <!-- Populated by JS -->
@@ -371,6 +376,7 @@
                         <li><a href="#products" data-filter-link="Him">عطور رجالية</a></li>
                         <li><a href="#products" data-filter-link="Her">عطور نسائية</a></li>
                         <li><a href="#products" data-filter-link="Unisex">عطور للجنسين</a></li>
+                        <li><a href="#products" data-filter-link="niche">عطور النيش</a></li>
                         <li><a href="#best-sellers">الأكثر مبيعاً</a></li>
                     </ul>
                 </div>
@@ -423,6 +429,20 @@
                 <button class="btn-add-to-cart" id="modal-add-to-cart">
                     <i class="fas fa-shopping-bag"></i> أضف إلى السلة
                 </button>
+                <div class="modal-trust" aria-hidden="true">
+                    <div class="modal-trust-item">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>منتج أصلي 100%</span>
+                    </div>
+                    <div class="modal-trust-item">
+                        <i class="fas fa-truck-fast"></i>
+                        <span>توصيل سريع</span>
+                    </div>
+                    <div class="modal-trust-item">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                        <span>الدفع عند الاستلام</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -437,6 +457,47 @@
     <button class="back-to-top" id="back-to-top" aria-label="العودة للأعلى">
         <i class="fas fa-chevron-up"></i>
     </button>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="search-overlay" aria-hidden="true" role="dialog" aria-label="بحث">
+        <div class="search-backdrop" id="search-backdrop"></div>
+        <div class="search-panel" role="search">
+            <div class="search-input-wrap">
+                <i class="fas fa-search search-input-icon"></i>
+                <input type="text" id="search-input" class="search-input"
+                    placeholder="ابحث عن عطرك المفضل..." autocomplete="off" spellcheck="false">
+                <button class="search-clear" id="search-clear" aria-label="مسح" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="search-close" id="search-close" aria-label="إغلاق" type="button">
+                    <span>إغلاق</span>
+                    <kbd>Esc</kbd>
+                </button>
+            </div>
+
+            <div class="search-body">
+                <!-- Empty / suggestions state -->
+                <div class="search-state search-state-empty" id="search-state-empty">
+                    <div class="search-section-title">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>آخر عمليات البحث</span>
+                    </div>
+                    <div class="search-chips" id="search-recent-chips"></div>
+                </div>
+
+                <!-- No results state -->
+                <div class="search-state search-state-noresults" id="search-state-noresults" hidden>
+                    <div class="search-noresults-icon"><i class="fas fa-compass"></i></div>
+                    <h3>لم نجد عطراً بهذا الاسم</h3>
+                    <p>جرّب البحث باسم آخر أو اختر من الاقتراحات:</p>
+                    <div class="search-chips" id="search-noresults-chips"></div>
+                </div>
+
+                <!-- Results -->
+                <div class="search-results" id="search-results" hidden></div>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

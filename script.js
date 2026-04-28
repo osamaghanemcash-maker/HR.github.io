@@ -28,6 +28,11 @@ function formatCurrency(value) {
 }
 
 function getProductCategory(productOrGender) {
+    // If a full product object is passed, check niche boolean first
+    if (typeof productOrGender === 'object' && productOrGender?.niche === true) {
+        return 'niche';
+    }
+
     const rawValue = typeof productOrGender === 'string'
         ? productOrGender
         : productOrGender?.gender;
@@ -364,7 +369,7 @@ function openProductModal(product) {
 
     $('#modal-product-image').src = product.image_url;
     $('#modal-product-image').alt = product.name;
-    $('#modal-brand').textContent = product.brand;
+    $('#modal-brand').textContent = '';
     $('#modal-name').textContent = product.name + ' -H&R ';
     $('#modal-gender').innerHTML = `<i class="${getGenderIcon(product.gender)}"></i> ${getGenderArabic(product.gender)}`;
     $('#price-100').textContent = `${getProductBottlePrice(product)} \u062f.\u0623`;
@@ -594,18 +599,34 @@ function goToCheckoutPage() {
 }
 
 // ===== Order Number =====
-function generateOrderNumber() {
-    let orderCounter = parseInt(localStorage.getItem('hr_order_counter') || '1000');
-    orderCounter++;
-    localStorage.setItem('hr_order_counter', orderCounter.toString());
-    return `#ORD-${orderCounter}`;
+async function generateOrderNumber() {
+    try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_order_counter`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        });
+        if (!response.ok) throw new Error('RPC failed');
+        const num = await response.json();
+        return `#ORD-${num}`;
+    } catch {
+        // Fallback: local counter if Supabase is unreachable
+        let orderCounter = parseInt(localStorage.getItem('hr_order_counter') || '1000');
+        orderCounter++;
+        localStorage.setItem('hr_order_counter', orderCounter.toString());
+        return `#ORD-${orderCounter}`;
+    }
 }
 
 // ===== WhatsApp Checkout =====
-function sendWhatsAppOrder() {
+async function sendWhatsAppOrder() {
     if (cart.length === 0) return;
 
-    const orderNumber = generateOrderNumber();
+    const orderNumber = await generateOrderNumber();
     const { subtotal, discountAmount, finalTotal } = getCartTotals();
     let message = `*\u0637\u0644\u0628 \u062c\u062f\u064a\u062f \u0645\u0646 H&R Perfume*\n`;
     message += `*\u0631\u0642\u0645 \u0627\u0644\u0637\u0644\u0628: ${orderNumber}*\n\n`;
@@ -977,6 +998,249 @@ function hideLoader() {
 }
 
 // ===== Initialize =====
+// ===== Search =====
+const SEARCH_RECENT_KEY = 'hr_recent_searches';
+const SEARCH_MAX_RECENT = 5;
+const SEARCH_MAX_RESULTS = 8;
+const SEARCH_SUGGESTIONS = ['Dior', 'Chanel', 'Tom Ford', 'Versace', 'Creed', 'YSL'];
+
+function getRecentSearches() {
+    try {
+        const arr = JSON.parse(localStorage.getItem(SEARCH_RECENT_KEY));
+        return Array.isArray(arr) ? arr.slice(0, SEARCH_MAX_RECENT) : [];
+    } catch {
+        return [];
+    }
+}
+
+function pushRecentSearch(term) {
+    const clean = String(term || '').trim();
+    if (!clean) return;
+    const current = getRecentSearches().filter(t => t.toLowerCase() !== clean.toLowerCase());
+    current.unshift(clean);
+    localStorage.setItem(SEARCH_RECENT_KEY, JSON.stringify(current.slice(0, SEARCH_MAX_RECENT)));
+}
+
+function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+}
+
+function escapeRegExp(str) {
+    return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function highlightMatch(text, query) {
+    const safe = escapeHtml(text);
+    if (!query) return safe;
+    const re = new RegExp(`(${escapeRegExp(query)})`, 'ig');
+    return safe.replace(re, '<mark>$1</mark>');
+}
+
+function productMatchesQuery(product, query) {
+    const q = query.toLowerCase();
+    const name = (product.name || '').toLowerCase();
+    const gender = (product.gender || '').toLowerCase();
+    return name.includes(q) || gender.includes(q);
+}
+
+function initSearch() {
+    const overlay = $('#search-overlay');
+    const backdrop = $('#search-backdrop');
+    const closeBtn = $('#search-close');
+    const toggleBtn = $('#search-toggle');
+    const input = $('#search-input');
+    const clearBtn = $('#search-clear');
+    const resultsEl = $('#search-results');
+    const emptyEl = $('#search-state-empty');
+    const noResultsEl = $('#search-state-noresults');
+    const recentChipsEl = $('#search-recent-chips');
+    const noResultsChipsEl = $('#search-noresults-chips');
+
+    if (!overlay || !toggleBtn || !input) return;
+
+    let activeIndex = -1;
+    let currentResults = [];
+    let debounceTimer = null;
+
+    function renderChips(container, items, iconClass) {
+        container.innerHTML = '';
+        if (!items.length) {
+            container.innerHTML = `<span style="color:var(--text-muted);font-size:0.85rem;">لا توجد عناصر بعد</span>`;
+            return;
+        }
+        items.forEach(term => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'search-chip';
+            chip.innerHTML = `<i class="fas ${iconClass}"></i><span>${escapeHtml(term)}</span>`;
+            chip.addEventListener('click', () => {
+                input.value = term;
+                input.focus();
+                runSearch(term);
+            });
+            container.appendChild(chip);
+        });
+    }
+
+    function renderEmptyState() {
+        renderChips(recentChipsEl, getRecentSearches(), 'fa-clock-rotate-left');
+        renderChips(noResultsChipsEl, SEARCH_SUGGESTIONS, 'fa-wand-magic-sparkles');
+    }
+
+    function setState(state) {
+        emptyEl.hidden = state !== 'empty';
+        emptyEl.style.display = state === 'empty' ? '' : 'none';
+
+        noResultsEl.hidden = state !== 'noresults';
+        noResultsEl.style.display = state === 'noresults' ? '' : 'none';
+
+        resultsEl.hidden = state !== 'results';
+        resultsEl.style.display = state === 'results' ? 'flex' : 'none';
+    }
+
+    function renderResults(products, query) {
+        resultsEl.innerHTML = '';
+        currentResults = products;
+        activeIndex = -1;
+
+        products.forEach((product, i) => {
+            const price = getProductBottlePrice(product);
+            const genderLabel = getGenderArabic(product.gender);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'search-result';
+            btn.style.animationDelay = `${i * 0.04}s`;
+            btn.dataset.index = i;
+            btn.innerHTML = `
+                <div class="search-result-thumb">
+                    <img src="${escapeHtml(product.image_url || 'logo without background.png')}" alt="${escapeHtml(product.name)}" loading="lazy">
+                </div>
+                <div class="search-result-info">
+                    <h4 class="search-result-name">${highlightMatch(product.name || '', query)}</h4>
+                    <div class="search-result-meta">
+                        <span>${escapeHtml(genderLabel)}</span>
+                    </div>
+                </div>
+                <div class="search-result-price">${price} د.أ</div>
+            `;
+            btn.addEventListener('click', () => selectResult(i));
+            btn.addEventListener('mouseenter', () => setActive(i));
+            resultsEl.appendChild(btn);
+        });
+    }
+
+    function setActive(index) {
+        const items = resultsEl.querySelectorAll('.search-result');
+        items.forEach(el => el.classList.remove('active'));
+        if (index >= 0 && index < items.length) {
+            items[index].classList.add('active');
+            items[index].scrollIntoView({ block: 'nearest' });
+            activeIndex = index;
+        } else {
+            activeIndex = -1;
+        }
+    }
+
+    function selectResult(index) {
+        const product = currentResults[index];
+        if (!product) return;
+        pushRecentSearch(input.value.trim() || product.name);
+        closeSearch();
+        setTimeout(() => openProductModal(product), 200);
+    }
+
+    function runSearch(rawQuery) {
+        const query = rawQuery.trim();
+        clearBtn.classList.toggle('visible', query.length > 0);
+
+        if (!query) {
+            setState('empty');
+            renderEmptyState();
+            currentResults = [];
+            return;
+        }
+
+        const matches = (allProducts || [])
+            .filter(p => productMatchesQuery(p, query))
+            .slice(0, SEARCH_MAX_RESULTS);
+
+        if (matches.length === 0) {
+            setState('noresults');
+            return;
+        }
+
+        setState('results');
+        renderResults(matches, query);
+    }
+
+    function openSearch() {
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        setState('empty');
+        renderEmptyState();
+        setTimeout(() => input.focus(), 50);
+    }
+
+    function closeSearch() {
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        input.value = '';
+        clearBtn.classList.remove('visible');
+        currentResults = [];
+        activeIndex = -1;
+    }
+
+    // Wiring
+    toggleBtn.addEventListener('click', openSearch);
+    closeBtn.addEventListener('click', closeSearch);
+    backdrop.addEventListener('click', closeSearch);
+
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        input.focus();
+        runSearch('');
+    });
+
+    input.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        const value = e.target.value;
+        debounceTimer = setTimeout(() => runSearch(value), 200);
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (!currentResults.length) return;
+            setActive((activeIndex + 1) % currentResults.length);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (!currentResults.length) return;
+            setActive(activeIndex <= 0 ? currentResults.length - 1 : activeIndex - 1);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeIndex >= 0) {
+                selectResult(activeIndex);
+            } else if (currentResults.length > 0) {
+                selectResult(0);
+            }
+        } else if (e.key === 'Escape') {
+            closeSearch();
+        }
+    });
+
+    // Global keyboard shortcut: Ctrl/Cmd+K opens search
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            overlay.classList.contains('active') ? closeSearch() : openSearch();
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     hideLoader();
     fetchProducts();
@@ -986,6 +1250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ensureNicheFilterUI();
     initFilters();
     initEventListeners();
+    initSearch();
     updateCartUI();
 
 

@@ -283,6 +283,41 @@ function buildWhatsAppMessage(orderNumber) {
     return message;
 }
 
+function persistOrderSnapshot(orderNumber) {
+    const { subtotal, discountAmount, finalTotal } = getCartTotals();
+    const fields = getCustomerFields();
+    const shippingCost = finalTotal >= FREE_SHIPPING_THRESHOLD ? 0 : 2;
+
+    const snapshot = {
+        orderNumber,
+        date: new Date().toISOString(),
+        items: cart.map((item) => ({
+            name: item.name,
+            brand: item.brand,
+            image: item.image,
+            size: item.size,
+            qty: item.qty,
+            price: item.price
+        })),
+        subtotal,
+        discountAmount,
+        discountCode: appliedDiscountCode || '',
+        shippingCost,
+        finalTotal: finalTotal + shippingCost,
+        paymentMethod: 'cod',
+        customer: {
+            firstName: fields.firstName.value.trim(),
+            lastName: fields.lastName.value.trim(),
+            phone: fields.phone.value.trim(),
+            governorate: fields.governorate.value,
+            address: fields.address.value.trim(),
+            notes: fields.notes.value.trim()
+        }
+    };
+
+    localStorage.setItem('hr_last_order', JSON.stringify(snapshot));
+}
+
 function handleSubmit(event) {
     event.preventDefault();
 
@@ -291,16 +326,17 @@ function handleSubmit(event) {
 
     saveCustomerInfo();
     const orderNumber = generateOrderNumber();
+    persistOrderSnapshot(orderNumber);
+
     const encoded = encodeURIComponent(buildWhatsAppMessage(orderNumber));
     window.open(`https://wa.me/962797107408?text=${encoded}`, '_blank');
 
-    // Show order number to customer
-    const toast = document.createElement('div');
-    toast.className = 'order-toast';
-    toast.innerHTML = `<i class="fas fa-check-circle"></i> تم إرسال طلبك <strong>${orderNumber}</strong>`;
-    toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:16px 28px;border-radius:12px;z-index:9999;font-size:1rem;display:flex;align-items:center;gap:10px;border:1px solid rgba(191,197,204,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:slideDown .4s ease';
-    document.body.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .4s'; setTimeout(() => toast.remove(), 400); }, 5000);
+    // Clear active cart so user starts fresh, but keep the order snapshot.
+    cart = [];
+    saveCart();
+    localStorage.removeItem('hr_discount_code');
+
+    window.location.href = 'order-confirmation.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -2210,19 +2210,48 @@ button {
     }
 
 
+    /* Center logo, menu-btn on visual right, search+cart grouped on visual left (RTL) */
+    .navbar-content {
+        position: relative;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .navbar-content > .logo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+    }
+
+    .nav-actions {
+        display: contents;
+    }
+
+    .mobile-menu-btn {
+        order: -1;
+        margin-inline-end: auto;
+    }
+
+    .search-btn,
+    .cart-btn {
+        order: 1;
+    }
+
     .nav-links {
         position: fixed;
         top: 0;
-        left: 0;
-        right: auto;
+        right: 0;
+        left: auto;
         width: 300px;
         height: 100vh;
         height: 100dvh;
         background: linear-gradient(180deg, #0d0d12 0%, #08080c 40%, #0a0a10 100%);
-        border-right: 1px solid rgba(191, 197, 204, 0.1);
+        border-left: 1px solid rgba(191, 197, 204, 0.1);
         flex-direction: column;
         padding: 0;
-        transform: translateX(-100%);
+        transform: translateX(100%);
         transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
         z-index: 1500;
         gap: 0;
@@ -2234,7 +2263,7 @@ button {
         content: '';
         position: absolute;
         top: 0;
-        right: 0;
+        left: 0;
         width: 1px;
         height: 100%;
         background: linear-gradient(180deg, transparent, var(--gold-primary), transparent);
@@ -2299,7 +2328,7 @@ button {
     /* Nav links inside mobile menu */
     .nav-links li {
         opacity: 0;
-        transform: translateX(-20px);
+        transform: translateX(20px);
         transition: opacity 0.35s ease, transform 0.35s ease;
         padding: 0 16px;
     }
@@ -2491,10 +2520,31 @@ button {
     }
 
     .modal-image {
-        aspect-ratio: 16/9;
-        max-height: 200px;
+        aspect-ratio: 4/5;
+        max-height: 300px;
         border-radius: 0;
         position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+            radial-gradient(ellipse at 50% 55%, rgba(191, 197, 204, 0.16) 0%, rgba(191, 197, 204, 0.05) 35%, transparent 65%),
+            linear-gradient(180deg, #1e1e22 0%, #141418 100%);
+        overflow: hidden;
+    }
+
+    .modal-image::before {
+        content: '';
+        position: absolute;
+        bottom: 14%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 55%;
+        height: 14px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55), transparent 70%);
+        filter: blur(6px);
+        pointer-events: none;
     }
 
     .modal-image::after {
@@ -2503,9 +2553,28 @@ button {
         bottom: 0;
         left: 0;
         right: 0;
-        height: 40px;
-        background: linear-gradient(to top, #1a1a1a, transparent);
+        height: 64px;
+        background: linear-gradient(to top, #1a1a1a 15%, transparent);
         pointer-events: none;
+    }
+
+    .modal-image img {
+        max-width: 70%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        padding: 0;
+        object-fit: contain;
+        object-position: center;
+        filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.7));
+        position: relative;
+        z-index: 1;
+        animation: modalImgFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes modalImgFloat {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-6px); }
     }
 
     .modal-info {

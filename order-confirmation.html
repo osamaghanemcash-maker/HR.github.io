@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تم استلام الطلب | H&R Perfume</title>
+    <meta name="description" content="تم استلام طلبك بنجاح من H&R Perfume.">
+    <link rel="icon" type="image/png" href="logo without background.png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="checkout.css">
+    <link rel="stylesheet" href="order-confirmation.css">
+</head>
+
+<body class="checkout-page confirmation-page">
+    <header class="checkout-header">
+        <div class="header-top">
+            <div class="container">
+                <span><i class="fas fa-shipping-fast"></i> توصيل مجاني للطلبات التي تتجاوز 60 د.أ</span>
+                <span><i class="fas fa-gem"></i> عطور فاخرة بأسعار مميزة</span>
+            </div>
+        </div>
+        <nav class="navbar">
+            <div class="container navbar-content">
+                <a href="index.html" class="logo">
+                    <img src="logo without background.png" alt="H&R Perfume">
+                </a>
+                <ul class="nav-links checkout-nav-links">
+                    <li><a href="index.html#home" class="nav-link">الرئيسية</a></li>
+                    <li><a href="index.html#products" class="nav-link">المتجر</a></li>
+                    <li><a href="index.html#contact" class="nav-link">تواصل معنا</a></li>
+                </ul>
+                <a href="index.html" class="checkout-back-link">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>العودة للمتجر</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="checkout-main confirmation-main">
+        <section class="checkout-hero">
+            <div class="container">
+                <div class="checkout-breadcrumbs">
+                    <a href="index.html">المتجر</a>
+                    <span><i class="fas fa-angle-left"></i></span>
+                    <a href="checkout.html">إتمام الطلب</a>
+                    <span><i class="fas fa-angle-left"></i></span>
+                    <span>تم الطلب</span>
+                </div>
+                <div class="checkout-hero-copy">
+                    <span class="section-badge">تم بنجاح</span>
+                    <h1>تم استلام طلبك</h1>
+                    <p>شكراً لثقتك بنا، سنتواصل معك قريباً لتأكيد موعد التوصيل.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="checkout-content">
+            <div class="container">
+                <div class="confirmation-wrap" id="confirmation-wrap">
+                    <!-- Success banner -->
+                    <div class="confirmation-banner">
+                        <div class="confirmation-banner-icon" aria-hidden="true">
+                            <span class="conf-ring conf-ring-1"></span>
+                            <span class="conf-ring conf-ring-3"></span>
+                            <svg class="conf-check-svg" viewBox="0 0 52 52">
+                                <circle class="conf-check-circle" cx="26" cy="26" r="24" fill="none"/>
+                                <path class="conf-check-path" fill="none" d="M14 27 L23 35 L39 18"/>
+                            </svg>
+                        </div>
+                        <div class="confirmation-banner-copy">
+                            <h2>شكراً لك. تم استلام طلبك.</h2>
+                            <p>لقد أرسلنا تفاصيل طلبك عبر واتساب وسنقوم بتأكيد الطلب خلال دقائق.</p>
+                        </div>
+                        <div class="confirmation-banner-glow"></div>
+                    </div>
+
+                    <!-- Order meta cards -->
+                    <div class="confirmation-meta-grid">
+                        <div class="confirmation-meta-card">
+                            <span class="confirmation-meta-label">رقم الطلب</span>
+                            <strong class="confirmation-meta-value" id="conf-order-number">—</strong>
+                        </div>
+                        <div class="confirmation-meta-card">
+                            <span class="confirmation-meta-label">التاريخ</span>
+                            <strong class="confirmation-meta-value" id="conf-order-date">—</strong>
+                        </div>
+                        <div class="confirmation-meta-card">
+                            <span class="confirmation-meta-label">الإجمالي</span>
+                            <strong class="confirmation-meta-value" id="conf-order-total">—</strong>
+                        </div>
+                        <div class="confirmation-meta-card">
+                            <span class="confirmation-meta-label">وسيلة الدفع</span>
+                            <strong class="confirmation-meta-value">الدفع عند الاستلام</strong>
+                        </div>
+                    </div>
+
+                    <p class="confirmation-cod-note">
+                        <i class="fas fa-money-bill-wave"></i>
+                        الدفع عند التسليم مباشرةً لمندوب التوصيل.
+                    </p>
+
+                    <!-- Order details -->
+                    <section class="confirmation-section">
+                        <div class="checkout-section-head">
+                            <h2>تفاصيل الطلب</h2>
+                            <p>ملخص المنتجات التي تم طلبها.</p>
+                        </div>
+
+                        <div class="confirmation-table">
+                            <div class="confirmation-table-head">
+                                <span>المنتج</span>
+                                <span>الإجمالي</span>
+                            </div>
+                            <div class="confirmation-table-body" id="conf-items"></div>
+
+                            <div class="confirmation-table-row confirmation-row-soft">
+                                <span>المجموع</span>
+                                <strong id="conf-subtotal">—</strong>
+                            </div>
+                            <div class="confirmation-table-row confirmation-row-soft" id="conf-discount-row" style="display:none;">
+                                <span>قيمة الخصم</span>
+                                <strong id="conf-discount">—</strong>
+                            </div>
+                            <div class="confirmation-table-row confirmation-row-soft">
+                                <span>الشحن</span>
+                                <strong id="conf-shipping">—</strong>
+                            </div>
+                            <div class="confirmation-table-row confirmation-row-final">
+                                <span>الإجمالي</span>
+                                <strong id="conf-total">—</strong>
+                            </div>
+                            <div class="confirmation-table-row confirmation-row-soft">
+                                <span>وسيلة الدفع</span>
+                                <strong>الدفع نقداً عند الاستلام</strong>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Addresses -->
+                    <section class="confirmation-addresses">
+                        <div class="confirmation-address-card">
+                            <div class="confirmation-address-icon"><i class="fas fa-file-invoice"></i></div>
+                            <h3>عنوان الفاتورة</h3>
+                            <div class="confirmation-address-body" id="conf-billing"></div>
+                        </div>
+                        <div class="confirmation-address-card">
+                            <div class="confirmation-address-icon"><i class="fas fa-truck"></i></div>
+                            <h3>عنوان الشحن</h3>
+                            <div class="confirmation-address-body" id="conf-shipping-addr"></div>
+                        </div>
+                    </section>
+
+                    <!-- Actions -->
+                    <div class="confirmation-actions">
+                        <a href="index.html#products" class="checkout-submit-btn confirmation-btn-primary">
+                            <i class="fas fa-bag-shopping"></i>
+                            <span>متابعة التسوق</span>
+                        </a>
+                        <button type="button" class="confirmation-btn-ghost" onclick="window.print()">
+                            <i class="fas fa-print"></i>
+                            <span>طباعة الفاتورة</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Empty / no-order fallback -->
+                <div class="confirmation-empty" id="confirmation-empty" style="display:none;">
+                    <i class="fas fa-receipt"></i>
+                    <h3>لا يوجد طلب لعرضه</h3>
+                    <p>يبدو أنك وصلت إلى هذه الصفحة دون إتمام طلب.</p>
+                    <a href="index.html#products" class="btn-primary">العودة للتسوق</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer checkout-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="logo without background.png" alt="H&R Perfume" class="footer-logo">
+                    <p>لمسة من الفخامة في كل قطرة</p>
+                    <div class="footer-socials">
+                        <a href="https://wa.me/962797107408" target="_blank" aria-label="واتساب"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://instagram.com/hadeelandrama" target="_blank" aria-label="انستغرام"><i class="fab fa-instagram"></i></a>
+                        <a href="https://facebook.com/hadeelandrama" target="_blank" aria-label="فيسبوك"><i class="fab fa-facebook-f"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html#home">الرئيسية</a></li>
+                        <li><a href="index.html#products">المتجر</a></li>
+                        <li><a href="index.html#best-sellers">الأكثر مبيعاً</a></li>
+                        <li><a href="index.html#contact">تواصل معنا</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>الدعم</h4>
+                    <ul>
+                        <li><a href="tel:+962797107408"><i class="fas fa-phone"></i> +962 79 710 7408</a></li>
+                        <li><a href="https://wa.me/962797107408" target="_blank"><i class="fab fa-whatsapp"></i> واتساب</a></li>
+                        <li><a href="https://instagram.com/hadeelandrama" target="_blank"><i class="fab fa-instagram"></i> @hadeelandrama</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 H&R Perfume. جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="order-confirmation.js"></script>
+</body>
+
+</html>
