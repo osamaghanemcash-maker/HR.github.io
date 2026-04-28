@@ -1,3 +1,5 @@
+const SUPABASE_URL = 'https://udwulegatrwkpwloevjz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_rPSseT-GCVtok4XkaJ62Pg_qLWpwH-a';
 const FREE_SHIPPING_THRESHOLD = 60;
 const DISCOUNT_CODES = {
     HR20: { type: 'percentage', value: 20 }
@@ -6,11 +8,27 @@ const DISCOUNT_CODES = {
 let cart = [];
 let appliedDiscountCode = '';
 
-function generateOrderNumber() {
-    let orderCounter = parseInt(localStorage.getItem('hr_order_counter') || '1000');
-    orderCounter++;
-    localStorage.setItem('hr_order_counter', orderCounter.toString());
-    return `#ORD-${orderCounter}`;
+async function generateOrderNumber() {
+    try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_order_counter`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        });
+        if (!response.ok) throw new Error('RPC failed');
+        const num = await response.json();
+        return `#ORD-${num}`;
+    } catch {
+        // Fallback: local counter if Supabase is unreachable
+        let orderCounter = parseInt(localStorage.getItem('hr_order_counter') || '1000');
+        orderCounter++;
+        localStorage.setItem('hr_order_counter', orderCounter.toString());
+        return `#ORD-${orderCounter}`;
+    }
 }
 
 const $ = (sel) => document.querySelector(sel);
@@ -318,14 +336,18 @@ function persistOrderSnapshot(orderNumber) {
     localStorage.setItem('hr_last_order', JSON.stringify(snapshot));
 }
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
     event.preventDefault();
 
     if (cart.length === 0) return;
     if (!validateForm()) return;
 
+    // Disable submit button to prevent double-clicks while awaiting order number
+    const confirmBtn = $('#confirm-order-btn');
+    if (confirmBtn) confirmBtn.disabled = true;
+
     saveCustomerInfo();
-    const orderNumber = generateOrderNumber();
+    const orderNumber = await generateOrderNumber();
     persistOrderSnapshot(orderNumber);
 
     const encoded = encodeURIComponent(buildWhatsAppMessage(orderNumber));
