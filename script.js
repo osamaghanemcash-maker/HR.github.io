@@ -626,6 +626,10 @@ async function generateOrderNumber() {
 async function sendWhatsAppOrder() {
     if (cart.length === 0) return;
 
+    // Open WhatsApp window SYNCHRONOUSLY (before await) to preserve user-gesture
+    // context — mobile browsers block popups after async gaps.
+    const whatsappWindow = window.open('about:blank', '_blank');
+
     const orderNumber = await generateOrderNumber();
     const { subtotal, discountAmount, finalTotal } = getCartTotals();
     let message = `*\u0637\u0644\u0628 \u062c\u062f\u064a\u062f \u0645\u0646 H&R Perfume*\n`;
@@ -651,7 +655,14 @@ async function sendWhatsAppOrder() {
     showToast(`\u062a\u0645 \u0625\u0631\u0633\u0627\u0644 \u0637\u0644\u0628\u0643 ${orderNumber}`);
 
     const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/962797107408?text=${encoded}`, '_blank');
+    const whatsappUrl = `https://wa.me/962797107408?text=${encoded}`;
+
+    if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.location.href = whatsappUrl;
+    } else {
+        // Fallback if popup was still blocked — navigate directly
+        window.location.href = whatsappUrl;
+    }
 }
 
 // ===== Toast Notification =====
