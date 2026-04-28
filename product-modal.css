@@ -495,49 +495,88 @@
     .modal-close {
         top: 22px;
         inset-inline-start: 14px;
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
     }
 
     .modal-image {
         min-height: 0;
         aspect-ratio: 6 / 4;
-        max-height: 260px;
-        padding: 26px 20px 22px;
+        max-height: 300px;
+        padding: 30px 24px 26px;
     }
 
     .modal-image img {
-        max-width: 58%;
-        max-height: 210px;
+        max-width: 62%;
+        max-height: 240px;
     }
 
     .modal-info {
-        padding: 22px 22px 28px;
-        gap: 14px;
+        padding: 26px 26px 32px;
+        gap: 16px;
     }
 
     .modal-info h2 {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
+    }
+
+    .modal-gender {
+        font-size: 0.92rem;
+        padding: 8px 16px;
+    }
+
+    .modal-sizes h4,
+    .modal-quantity h4 {
+        font-size: 0.9rem;
+    }
+
+    .size-btn {
+        min-width: 100%;
+        padding: 14px 22px;
+        border-radius: 16px;
+    }
+
+    .size-label {
+        font-size: 1.05rem;
+    }
+
+    .size-price {
+        font-size: 1.05rem;
+    }
+
+    .quantity-control {
+        padding: 6px;
+    }
+
+    .qty-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .qty-value {
+        font-size: 1.15rem;
+        min-width: 52px;
     }
 
     .btn-add-to-cart {
-        padding: 14px 20px;
-        font-size: 0.95rem;
+        padding: 16px 24px;
+        font-size: 1.1rem;
+        border-radius: 18px;
     }
 
     .modal-trust {
         grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        padding-top: 14px;
-        margin-top: 10px;
+        gap: 10px;
+        padding-top: 16px;
+        margin-top: 12px;
     }
 
     .modal-trust-item {
-        font-size: 0.68rem;
-        gap: 4px;
+        font-size: 0.78rem;
+        gap: 6px;
     }
 
-    .modal-trust-item i { font-size: 0.9rem; }
+    .modal-trust-item i { font-size: 1.05rem; }
 }
 
 /* ---------- Reduced motion ---------- */
