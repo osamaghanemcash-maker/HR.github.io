@@ -347,11 +347,24 @@ async function handleSubmit(event) {
     if (confirmBtn) confirmBtn.disabled = true;
 
     saveCustomerInfo();
+
+    // Open WhatsApp window SYNCHRONOUSLY (before await) to preserve user-gesture
+    // context — mobile browsers block popups after async gaps.
+    const whatsappWindow = window.open('about:blank', '_blank');
+
     const orderNumber = await generateOrderNumber();
     persistOrderSnapshot(orderNumber);
 
     const encoded = encodeURIComponent(buildWhatsAppMessage(orderNumber));
-    window.open(`https://wa.me/962797107408?text=${encoded}`, '_blank');
+    const whatsappUrl = `https://wa.me/962797107408?text=${encoded}`;
+
+    if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.location.href = whatsappUrl;
+    } else {
+        // Fallback if popup was still blocked — navigate directly
+        window.location.href = whatsappUrl;
+        return; // skip confirmation redirect since we navigated away
+    }
 
     // Clear active cart so user starts fresh, but keep the order snapshot.
     cart = [];

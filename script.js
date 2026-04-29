@@ -983,19 +983,26 @@ function initEventListeners() {
         }
     });
 
-    // Smooth scroll for nav links
-    $$('a[href^="#"]').forEach(link => {
-        link.addEventListener('click', (e) => {
-            const targetId = link.getAttribute('href');
-            if (targetId === '#') return;
-            e.preventDefault();
-            const target = document.querySelector(targetId);
-            if (target) {
-                const offset = 80;
-                const top = target.getBoundingClientRect().top + window.scrollY - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
-            }
-        });
+    // Smooth scroll for any in-page anchor (delegated, so dynamically added
+    // links work too). Wait for the mobile menu's body-overflow lock to be
+    // released before measuring/scrolling — otherwise mobile browsers compute
+    // against a stale layout and the scroll silently no-ops.
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href^="#"]');
+        if (!link) return;
+        const targetId = link.getAttribute('href');
+        if (!targetId || targetId === '#') return;
+        const target = document.querySelector(targetId);
+        if (!target) return;
+        e.preventDefault();
+        const doScroll = () => target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // If the body is currently scroll-locked by the open mobile menu,
+        // wait until the lock is released before scrolling.
+        if (document.body.style.overflow === 'hidden') {
+            requestAnimationFrame(() => requestAnimationFrame(doScroll));
+        } else {
+            doScroll();
+        }
     });
 }
 
