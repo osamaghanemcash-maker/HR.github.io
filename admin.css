@@ -92,6 +92,10 @@ textarea {
     padding: 24px;
 }
 
+.auth-screen[hidden] {
+    display: none;
+}
+
 .auth-card {
     width: 100%;
     max-width: 420px;
@@ -462,6 +466,43 @@ textarea {
     background: rgba(201, 164, 94, 0.3);
 }
 
+.search-box {
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.search-box i {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 11px 40px 11px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.search-box input:focus {
+    border-color: var(--gold-primary);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.search-box input::placeholder {
+    color: var(--text-muted);
+}
+
 .toggle-cancelled {
     display: inline-flex;
     align-items: center;
@@ -795,6 +836,11 @@ textarea {
     overflow: hidden;
 }
 
+.drawer[hidden],
+.drawer-overlay[hidden] {
+    display: none;
+}
+
 @keyframes slide-in {
     from { transform: translateX(-100%); }
     to { transform: translateX(0); }
@@ -1087,4 +1133,35 @@ textarea {
         margin: 0 auto;
         border-radius: 16px 16px 0 0;
     }
+}
+
+.image-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.image-upload img {
+    width: 100%;
+    max-width: 220px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    align-self: center;
+}
+
+.image-upload-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.image-pick-btn {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }

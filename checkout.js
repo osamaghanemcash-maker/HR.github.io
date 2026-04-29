@@ -19,7 +19,7 @@ async function fetchDiscountCodeDefinition(code) {
         if (!res.ok) return null;
         const rows = await res.json();
         const row = rows[0] || null;
-        discountCodeCache.set(upper, row);
+        if (row) discountCodeCache.set(upper, row);
         return row;
     } catch {
         return null;
@@ -49,13 +49,31 @@ function normalizeCartItem(item) {
 function calculateDiscountAmount(subtotal) {
     const d = appliedDiscountDefinition;
     if (!d) return 0;
-    if (d.type === 'percentage') {
-        return Math.min(subtotal, subtotal * (d.value / 100));
+    if (d.min_order_total != null && subtotal < Number(d.min_order_total)) return 0;
+    const raw = d.type === 'percentage'
+        ? Math.min(subtotal, subtotal * (Number(d.value) / 100))
+        : Math.min(subtotal, Number(d.value));
+    return Math.round(raw * 100) / 100;
+}
+
+function revalidateAppliedDiscount() {
+    if (!appliedDiscountDefinition) return false;
+    const d = appliedDiscountDefinition;
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const expired = d.expires_at && new Date(d.expires_at) < new Date();
+    const usedUp = d.max_uses != null && d.current_uses >= d.max_uses;
+    const belowMin = d.min_order_total != null && subtotal < Number(d.min_order_total);
+    if (expired || usedUp || belowMin || cart.length === 0) {
+        appliedDiscountCode = '';
+        appliedDiscountDefinition = null;
+        localStorage.removeItem('hr_discount_code');
+        return true;
     }
-    return Math.min(subtotal, d.value);
+    return false;
 }
 
 function getCartTotals() {
+    revalidateAppliedDiscount();
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const discountAmount = calculateDiscountAmount(subtotal);
     const finalTotal = Math.max(0, subtotal - discountAmount);
@@ -103,6 +121,13 @@ async function loadCart() {
         return;
     }
     if (def.max_uses != null && def.current_uses >= def.max_uses) {
+        localStorage.removeItem('hr_discount_code');
+        appliedDiscountCode = '';
+        appliedDiscountDefinition = null;
+        return;
+    }
+    const subtotalNow = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    if (def.min_order_total != null && subtotalNow < Number(def.min_order_total)) {
         localStorage.removeItem('hr_discount_code');
         appliedDiscountCode = '';
         appliedDiscountDefinition = null;
@@ -377,12 +402,40 @@ async function placeOrderViaEdgeFunction() {
     });
 
     if (!res.ok) {
+        let code = '';
         let detail = '';
-        try { detail = JSON.stringify(await res.json()); } catch {}
-        throw new Error(`place-order ${res.status}: ${detail}`);
+        try {
+            const body = await res.json();
+            code = body?.error || '';
+            detail = JSON.stringify(body);
+        } catch {}
+        const err = new Error(`place-order ${res.status}: ${detail}`);
+        err.code = code;
+        err.status = res.status;
+        throw err;
     }
 
     return res.json();
+}
+
+const PLACE_ORDER_ERROR_MESSAGES = {
+    empty_cart: 'سلة المشتريات فارغة.',
+    too_many_items: 'عدد الأصناف في السلة كبير جداً.',
+    invalid_item_id: 'أحد المنتجات غير صالح. يرجى تحديث السلة.',
+    invalid_item_size: 'الحجم المطلوب لأحد المنتجات غير صالح.',
+    invalid_item_qty: 'الكمية المطلوبة لأحد المنتجات غير صالحة (1–10).',
+    missing_customer_fields: 'يرجى تعبئة جميع حقول معلومات التوصيل.',
+    product_not_found: 'أحد المنتجات لم يعد متوفراً. يرجى تحديث السلة.',
+    product_unavailable: 'أحد المنتجات في السلة غير متوفر حالياً. يرجى إزالته والمحاولة مجدداً.',
+    invalid_size_for_product: 'الحجم المطلوب لأحد المنتجات لم يعد متاحاً.',
+};
+
+function messageForOrderError(err) {
+    const fallback = 'عذراً، حدث خطأ أثناء تجهيز الطلب. الرجاء المحاولة مرة أخرى أو التواصل معنا عبر الواتساب.';
+    if (err && err.code && PLACE_ORDER_ERROR_MESSAGES[err.code]) {
+        return PLACE_ORDER_ERROR_MESSAGES[err.code];
+    }
+    return fallback;
 }
 
 async function handleSubmit(event) {
@@ -407,11 +460,19 @@ async function handleSubmit(event) {
         console.error('[place-order] failed:', err);
         if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
         if (confirmBtn) confirmBtn.disabled = false;
-        alert('عذراً، حدث خطأ أثناء تجهيز الطلب. الرجاء المحاولة مرة أخرى أو التواصل معنا عبر الواتساب.');
+        alert(messageForOrderError(err));
         return;
     }
 
     persistOrderSnapshot(serverOrder);
+
+    // Order is confirmed in the DB at this point — clear the active cart and
+    // discount code immediately so the user can't accidentally resubmit them
+    // even if the WhatsApp redirect or the confirmation navigation is interrupted.
+    cart = [];
+    saveCart();
+    localStorage.removeItem('hr_discount_code');
+    appliedDiscountCode = '';
 
     const encoded = encodeURIComponent(buildWhatsAppMessage(serverOrder));
     const whatsappUrl = `https://wa.me/962797107408?text=${encoded}`;
@@ -419,15 +480,9 @@ async function handleSubmit(event) {
     if (whatsappWindow && !whatsappWindow.closed) {
         whatsappWindow.location.href = whatsappUrl;
     } else {
-        // Fallback if popup was blocked — navigate directly
         window.location.href = whatsappUrl;
         return;
     }
-
-    // Clear active cart so user starts fresh, but keep the order snapshot.
-    cart = [];
-    saveCart();
-    localStorage.removeItem('hr_discount_code');
 
     window.location.href = 'order-confirmation.html';
 }

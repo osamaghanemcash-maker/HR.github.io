@@ -99,7 +99,7 @@ async function fetchDiscountCodeDefinition(code) {
         if (!res.ok) return null;
         const rows = await res.json();
         const row = rows[0] || null;
-        discountCodeCache.set(upper, row);
+        if (row) discountCodeCache.set(upper, row);
         return row;
     } catch {
         return null;
@@ -109,10 +109,11 @@ async function fetchDiscountCodeDefinition(code) {
 function calculateDiscountAmount(subtotal) {
     const d = appliedDiscountDefinition;
     if (!d) return 0;
-    if (d.type === 'percentage') {
-        return Math.min(subtotal, subtotal * (d.value / 100));
-    }
-    return Math.min(subtotal, d.value);
+    if (d.min_order_total != null && subtotal < Number(d.min_order_total)) return 0;
+    const raw = d.type === 'percentage'
+        ? Math.min(subtotal, subtotal * (Number(d.value) / 100))
+        : Math.min(subtotal, Number(d.value));
+    return Math.round(raw * 100) / 100;
 }
 
 function getCartTotals() {
@@ -501,6 +502,27 @@ async function restoreSavedDiscountCode() {
     updateCartUI();
 }
 
+function revalidateAppliedDiscount() {
+    if (!appliedDiscountDefinition) return false;
+    const d = appliedDiscountDefinition;
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const expired = d.expires_at && new Date(d.expires_at) < new Date();
+    const usedUp = d.max_uses != null && d.current_uses >= d.max_uses;
+    const belowMin = d.min_order_total != null && subtotal < Number(d.min_order_total);
+    if (expired || usedUp || belowMin || cart.length === 0) {
+        appliedDiscountCode = '';
+        appliedDiscountDefinition = null;
+        localStorage.removeItem('hr_discount_code');
+        if (belowMin && !expired && !usedUp) {
+            setDiscountValidationMessage(`✗ الحد الأدنى للطلب ${formatCurrency(d.min_order_total)}`, 'invalid');
+        } else {
+            setDiscountValidationMessage('', '');
+        }
+        return true;
+    }
+    return false;
+}
+
 function updateCartItemQty(key, delta) {
     const item = cart.find(cartItem => cartItem.key === key);
     if (!item) return;
@@ -532,6 +554,8 @@ function updateCartUI() {
     cart = cart.map(normalizeCartItem).filter(Boolean);
 
     saveCart();
+
+    revalidateAppliedDiscount();
 
     const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
     const { subtotal, discountAmount, finalTotal } = getCartTotals();

@@ -2,7 +2,7 @@
 const SUPABASE_URL = 'https://udwulegatrwkpwloevjz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_rPSseT-GCVtok4XkaJ62Pg_qLWpwH-a';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: true, autoRefreshToken: true }
 });
 
@@ -28,6 +28,9 @@ let orderFilter = 'all';
 let showCancelled = false;
 let productFilter = 'all';
 let activeSection = 'orders';
+let orderSearch = '';
+let productSearch = '';
+let ordersChannel = null;
 
 // ===== Toast =====
 function toast(msg, kind = 'success') {
@@ -105,12 +108,12 @@ async function handleAuthSubmit(e) {
 
     try {
         if (authMode === 'signup') {
-            const { error } = await supabase.auth.signUp({ email, password });
+            const { error } = await sb.auth.signUp({ email, password });
             if (error) throw error;
             showAuthInfo('تم إنشاء الحساب. تحقق من بريدك للتفعيل ثم سجل الدخول.');
             setAuthMode('login');
         } else {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await sb.auth.signInWithPassword({ email, password });
             if (error) throw error;
             // onAuthStateChange will pick it up
         }
@@ -126,7 +129,7 @@ async function handleForgotPassword() {
     if (!email) { showAuthError('أدخل البريد الإلكتروني أولاً'); return; }
     hideAuthMessages();
     try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        const { error } = await sb.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + window.location.pathname
         });
         if (error) throw error;
@@ -146,11 +149,11 @@ function translateAuthError(err) {
 }
 
 async function handleSignOut() {
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
 }
 
 async function checkIsAdmin() {
-    const { data, error } = await supabase.rpc('is_admin');
+    const { data, error } = await sb.rpc('is_admin');
     if (error) {
         console.error('is_admin check failed:', error);
         return false;
@@ -165,7 +168,7 @@ async function onSessionResolved(session) {
     }
     const isAdmin = await checkIsAdmin();
     if (!isAdmin) {
-        await supabase.auth.signOut();
+        await sb.auth.signOut();
         showLoginScreen();
         showAuthError('هذا الحساب غير مخوّل للوصول للوحة الإدارة');
         return;
@@ -212,7 +215,7 @@ function closeDrawer() {
 async function loadOrders() {
     const list = $('#orders-list');
     list.innerHTML = '<div class="list-empty">جارٍ التحميل...</div>';
-    const { data, error } = await supabase
+    const { data, error } = await sb
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false })
@@ -244,14 +247,22 @@ function renderOrders() {
         newBadge.hidden = true;
     }
 
+    const q = orderSearch.trim().toLowerCase();
     const filtered = allOrders.filter((o) => {
         if (o.status === 'cancelled' && !showCancelled) return false;
-        if (orderFilter === 'all') return o.status !== 'cancelled' || showCancelled;
-        return o.status === orderFilter;
+        if (orderFilter !== 'all' && o.status !== orderFilter) return false;
+        if (orderFilter === 'all' && o.status === 'cancelled' && !showCancelled) return false;
+        if (q) {
+            const hay = `${o.order_number} ${o.first_name} ${o.last_name} ${o.phone} ${o.governorate}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+        return true;
     });
 
     if (filtered.length === 0) {
-        list.innerHTML = '<div class="list-empty">لا توجد طلبات لعرضها.</div>';
+        list.innerHTML = q
+            ? `<div class="list-empty">لا توجد طلبات تطابق "${escapeHtml(orderSearch)}".</div>`
+            : '<div class="list-empty">لا توجد طلبات لعرضها.</div>';
         return;
     }
 
@@ -377,7 +388,7 @@ function openOrderDetail(orderNumber) {
 }
 
 async function updateOrderStatus(orderNumber, status) {
-    const { error } = await supabase.from('orders').update({ status }).eq('order_number', orderNumber);
+    const { error } = await sb.from('orders').update({ status }).eq('order_number', orderNumber);
     if (error) { toast('فشل التحديث: ' + error.message, 'error'); return; }
     toast('تم تحديث الحالة');
     closeDrawer();
@@ -385,7 +396,7 @@ async function updateOrderStatus(orderNumber, status) {
 }
 
 async function deleteOrder(orderNumber) {
-    const { error } = await supabase.from('orders').delete().eq('order_number', orderNumber);
+    const { error } = await sb.from('orders').delete().eq('order_number', orderNumber);
     if (error) { toast('فشل الحذف: ' + error.message, 'error'); return; }
     toast('تم حذف الطلب');
     closeDrawer();
@@ -396,7 +407,7 @@ async function deleteOrder(orderNumber) {
 async function loadCodes() {
     const list = $('#codes-list');
     list.innerHTML = '<div class="list-empty">جارٍ التحميل...</div>';
-    const { data, error } = await supabase
+    const { data, error } = await sb
         .from('discount_codes')
         .select('*')
         .order('created_at', { ascending: false });
@@ -448,7 +459,7 @@ function renderCodes() {
 async function toggleCode(code) {
     const c = allCodes.find((x) => x.code === code);
     if (!c) return;
-    const { error } = await supabase.from('discount_codes').update({ is_active: !c.is_active }).eq('code', code);
+    const { error } = await sb.from('discount_codes').update({ is_active: !c.is_active }).eq('code', code);
     if (error) { toast('فشل التحديث: ' + error.message, 'error'); return; }
     toast(c.is_active ? 'تم تعطيل الكود' : 'تم تفعيل الكود');
     await loadCodes();
@@ -532,9 +543,9 @@ function openCodeEditor(existingCode = null) {
 
         let error;
         if (isEdit) {
-            ({ error } = await supabase.from('discount_codes').update(payload).eq('code', existingCode));
+            ({ error } = await sb.from('discount_codes').update(payload).eq('code', existingCode));
         } else {
-            ({ error } = await supabase.from('discount_codes').insert(payload));
+            ({ error } = await sb.from('discount_codes').insert(payload));
         }
         if (error) { toast('فشل الحفظ: ' + error.message, 'error'); return; }
         toast(isEdit ? 'تم الحفظ' : 'تم إنشاء الكود');
@@ -545,7 +556,7 @@ function openCodeEditor(existingCode = null) {
     if (isEdit) {
         $('#code-delete').addEventListener('click', async () => {
             if (!confirm(`حذف الكود "${c.code}" نهائياً؟`)) return;
-            const { error } = await supabase.from('discount_codes').delete().eq('code', c.code);
+            const { error } = await sb.from('discount_codes').delete().eq('code', c.code);
             if (error) { toast('فشل الحذف: ' + error.message, 'error'); return; }
             toast('تم الحذف');
             closeDrawer();
@@ -558,7 +569,7 @@ function openCodeEditor(existingCode = null) {
 async function loadProducts() {
     const list = $('#products-list');
     list.innerHTML = '<div class="list-empty">جارٍ التحميل...</div>';
-    const { data, error } = await supabase
+    const { data, error } = await sb
         .from('perfumes')
         .select('*')
         .order('ID', { ascending: true });
@@ -577,13 +588,20 @@ function productCategory(p) {
 
 function renderProducts() {
     const list = $('#products-list');
+    const q = productSearch.trim().toLowerCase();
     const filtered = allProducts.filter((p) => {
-        if (productFilter === 'all') return true;
-        return productCategory(p) === productFilter;
+        if (productFilter !== 'all' && productCategory(p) !== productFilter) return false;
+        if (q) {
+            const hay = `${p.name || ''} ${p.brand || ''}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+        return true;
     });
 
     if (filtered.length === 0) {
-        list.innerHTML = '<div class="list-empty">لا توجد منتجات.</div>';
+        list.innerHTML = q
+            ? `<div class="list-empty">لا توجد منتجات تطابق "${escapeHtml(productSearch)}".</div>`
+            : '<div class="list-empty">لا توجد منتجات.</div>';
         return;
     }
 
@@ -646,8 +664,21 @@ function openProductEditor(existingId = null) {
                 <input type="number" name="price_30ml" min="0" step="0.01" value="${p?.price_30ml ?? ''}">
             </div>
             <div class="form-field">
-                <label>رابط الصورة</label>
-                <input type="url" name="image_url" value="${p ? escapeHtml(p.image_url || '') : ''}" placeholder="https://...">
+                <label>صورة المنتج</label>
+                <div class="image-upload">
+                    <img id="product-image-preview" src="${p && p.image_url ? escapeHtml(p.image_url) : 'logo without background.png'}" alt="">
+                    <div class="image-upload-actions">
+                        <label class="btn-secondary image-pick-btn">
+                            <i class="fas fa-upload"></i>
+                            <span id="image-pick-label">رفع صورة</span>
+                            <input type="file" id="product-image-file" accept="image/*" hidden>
+                        </label>
+                        <button type="button" class="btn-secondary" id="product-image-clear" ${p && p.image_url ? '' : 'hidden'}>
+                            <i class="fas fa-times"></i> إزالة
+                        </button>
+                    </div>
+                    <input type="url" name="image_url" id="product-image-url" value="${p ? escapeHtml(p.image_url || '') : ''}" placeholder="أو الصق رابط الصورة">
+                </div>
             </div>
             <label class="form-toggle">
                 <span class="ft-label">متوفر للبيع</span>
@@ -684,6 +715,61 @@ function openProductEditor(existingId = null) {
         });
     });
 
+    // Wire image upload
+    const fileInput = $('#product-image-file');
+    const urlInput = $('#product-image-url');
+    const preview = $('#product-image-preview');
+    const clearBtn = $('#product-image-clear');
+    const pickLabel = $('#image-pick-label');
+
+    urlInput.addEventListener('input', () => {
+        const v = urlInput.value.trim();
+        preview.src = v || 'logo without background.png';
+        clearBtn.hidden = !v;
+    });
+
+    clearBtn.addEventListener('click', () => {
+        urlInput.value = '';
+        preview.src = 'logo without background.png';
+        clearBtn.hidden = true;
+    });
+
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { toast('الملف يجب أن يكون صورة', 'error'); return; }
+        if (file.size > 5 * 1024 * 1024) { toast('الصورة كبيرة (الحد الأقصى 5MB)', 'error'); return; }
+
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const path = `${p?.ID ?? 'new'}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+        pickLabel.textContent = 'جارٍ الرفع...';
+        fileInput.disabled = true;
+
+        const { error: upErr } = await sb.storage.from('perfumes').upload(path, file, {
+            cacheControl: '31536000',
+            upsert: false,
+            contentType: file.type
+        });
+
+        if (upErr) {
+            toast('فشل رفع الصورة: ' + upErr.message, 'error');
+            pickLabel.textContent = 'رفع صورة';
+            fileInput.disabled = false;
+            fileInput.value = '';
+            return;
+        }
+
+        const { data: pub } = sb.storage.from('perfumes').getPublicUrl(path);
+        urlInput.value = pub.publicUrl;
+        preview.src = pub.publicUrl;
+        clearBtn.hidden = false;
+        pickLabel.textContent = 'استبدال الصورة';
+        fileInput.disabled = false;
+        fileInput.value = '';
+        toast('تم رفع الصورة');
+    });
+
     $('#product-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
@@ -702,9 +788,9 @@ function openProductEditor(existingId = null) {
 
         let error;
         if (isEdit) {
-            ({ error } = await supabase.from('perfumes').update(payload).eq('ID', p.ID));
+            ({ error } = await sb.from('perfumes').update(payload).eq('ID', p.ID));
         } else {
-            ({ error } = await supabase.from('perfumes').insert(payload));
+            ({ error } = await sb.from('perfumes').insert(payload));
         }
         if (error) { toast('فشل الحفظ: ' + error.message, 'error'); return; }
         toast(isEdit ? 'تم الحفظ' : 'تم إنشاء المنتج');
@@ -715,7 +801,7 @@ function openProductEditor(existingId = null) {
     if (isEdit) {
         $('#product-delete').addEventListener('click', async () => {
             if (!confirm(`حذف "${p.name}" نهائياً؟`)) return;
-            const { error } = await supabase.from('perfumes').delete().eq('ID', p.ID);
+            const { error } = await sb.from('perfumes').delete().eq('ID', p.ID);
             if (error) { toast('فشل الحذف: ' + error.message, 'error'); return; }
             toast('تم الحذف');
             closeDrawer();
@@ -727,6 +813,42 @@ function openProductEditor(existingId = null) {
 // ===== Initial load =====
 async function loadAll() {
     await Promise.all([loadOrders(), loadCodes(), loadProducts()]);
+    subscribeToNewOrders();
+}
+
+function playNewOrderSound() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.setValueAtTime(1320, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.42);
+    } catch {}
+}
+
+function subscribeToNewOrders() {
+    if (ordersChannel) return;
+    ordersChannel = sb.channel('admin-orders')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, (payload) => {
+            const o = payload.new;
+            if (allOrders.some((x) => x.order_number === o.order_number)) return;
+            allOrders.unshift(o);
+            renderOrders();
+            playNewOrderSound();
+            toast(`طلب جديد: ${o.order_number} — ${o.first_name} ${o.last_name}`);
+        })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, (payload) => {
+            const idx = allOrders.findIndex((x) => x.order_number === payload.new.order_number);
+            if (idx >= 0) { allOrders[idx] = payload.new; renderOrders(); }
+        })
+        .subscribe();
 }
 
 // ===== Wire up =====
@@ -760,6 +882,10 @@ function wireUp() {
         await loadOrders();
         $('#orders-refresh').classList.remove('spinning');
     });
+    $('#orders-search').addEventListener('input', (e) => {
+        orderSearch = e.target.value;
+        renderOrders();
+    });
 
     // Codes
     $('#codes-add').addEventListener('click', () => openCodeEditor());
@@ -773,6 +899,15 @@ function wireUp() {
             productFilter = chip.dataset.filter;
             renderProducts();
         });
+    });
+    $('#products-search').addEventListener('input', (e) => {
+        productSearch = e.target.value;
+        renderProducts();
+    });
+
+    // Refresh orders when tab regains focus (catches new orders without manual refresh)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && currentUser) loadOrders();
     });
 
     // Drawer
@@ -788,13 +923,14 @@ async function boot() {
     wireUp();
     setAuthMode('login');
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await sb.auth.getSession();
     await onSessionResolved(session);
 
-    supabase.auth.onAuthStateChange((event, session) => {
+    sb.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
             currentUser = null;
             allOrders = []; allCodes = []; allProducts = [];
+            if (ordersChannel) { sb.removeChannel(ordersChannel); ordersChannel = null; }
             showLoginScreen();
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
             onSessionResolved(session);
