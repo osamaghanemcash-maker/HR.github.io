@@ -1,33 +1,28 @@
 const SUPABASE_URL = 'https://udwulegatrwkpwloevjz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_rPSseT-GCVtok4XkaJ62Pg_qLWpwH-a';
 const FREE_SHIPPING_THRESHOLD = 60;
-const DISCOUNT_CODES = {
-    HR20: { type: 'percentage', value: 20 }
-};
+const discountCodeCache = new Map();
 
 let cart = [];
 let appliedDiscountCode = '';
+let appliedDiscountDefinition = null;
 
-async function generateOrderNumber() {
+async function fetchDiscountCodeDefinition(code) {
+    const upper = (code || '').trim().toUpperCase();
+    if (!upper) return null;
+    if (discountCodeCache.has(upper)) return discountCodeCache.get(upper);
     try {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_order_counter`, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
+        const url = `${SUPABASE_URL}/rest/v1/discount_codes?code=eq.${encodeURIComponent(upper)}&is_active=eq.true&select=*`;
+        const res = await fetch(url, {
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
         });
-        if (!response.ok) throw new Error('RPC failed');
-        const num = await response.json();
-        return `#ORD-${num}`;
+        if (!res.ok) return null;
+        const rows = await res.json();
+        const row = rows[0] || null;
+        discountCodeCache.set(upper, row);
+        return row;
     } catch {
-        // Fallback: local counter if Supabase is unreachable
-        let orderCounter = parseInt(localStorage.getItem('hr_order_counter') || '1000');
-        orderCounter++;
-        localStorage.setItem('hr_order_counter', orderCounter.toString());
-        return `#ORD-${orderCounter}`;
+        return null;
     }
 }
 
@@ -51,19 +46,13 @@ function normalizeCartItem(item) {
     };
 }
 
-function getDiscountCodeDefinition(code) {
-    return DISCOUNT_CODES[code] || null;
-}
-
-function calculateDiscountAmount(subtotal, code = appliedDiscountCode) {
-    const discount = getDiscountCodeDefinition(code);
-    if (!discount) return 0;
-
-    if (discount.type === 'percentage') {
-        return Math.min(subtotal, subtotal * (discount.value / 100));
+function calculateDiscountAmount(subtotal) {
+    const d = appliedDiscountDefinition;
+    if (!d) return 0;
+    if (d.type === 'percentage') {
+        return Math.min(subtotal, subtotal * (d.value / 100));
     }
-
-    return Math.min(subtotal, discount.value);
+    return Math.min(subtotal, d.value);
 }
 
 function getCartTotals() {
@@ -74,20 +63,19 @@ function getCartTotals() {
     return { subtotal, discountAmount, finalTotal };
 }
 
-function getDiscountDescription(code) {
-    const discount = getDiscountCodeDefinition(code);
-    if (!discount) return '';
-
-    return discount.type === 'percentage'
-        ? `خصم ${discount.value}%`
-        : `خصم ${formatCurrency(discount.value)}`;
+function getDiscountDescription() {
+    const d = appliedDiscountDefinition;
+    if (!d) return '';
+    return d.type === 'percentage'
+        ? `خصم ${d.value}%`
+        : `خصم ${formatCurrency(d.value)}`;
 }
 
 function saveCart() {
     localStorage.setItem('hr_cart', JSON.stringify(cart));
 }
 
-function loadCart() {
+async function loadCart() {
     try {
         const savedCart = JSON.parse(localStorage.getItem('hr_cart'));
         cart = Array.isArray(savedCart) ? savedCart.map(normalizeCartItem).filter(Boolean) : [];
@@ -96,7 +84,32 @@ function loadCart() {
     }
 
     const savedDiscountCode = (localStorage.getItem('hr_discount_code') || '').toUpperCase();
-    appliedDiscountCode = getDiscountCodeDefinition(savedDiscountCode) ? savedDiscountCode : '';
+    if (!savedDiscountCode) {
+        appliedDiscountCode = '';
+        appliedDiscountDefinition = null;
+        return;
+    }
+    const def = await fetchDiscountCodeDefinition(savedDiscountCode);
+    if (!def) {
+        localStorage.removeItem('hr_discount_code');
+        appliedDiscountCode = '';
+        appliedDiscountDefinition = null;
+        return;
+    }
+    if (def.expires_at && new Date(def.expires_at) < new Date()) {
+        localStorage.removeItem('hr_discount_code');
+        appliedDiscountCode = '';
+        appliedDiscountDefinition = null;
+        return;
+    }
+    if (def.max_uses != null && def.current_uses >= def.max_uses) {
+        localStorage.removeItem('hr_discount_code');
+        appliedDiscountCode = '';
+        appliedDiscountDefinition = null;
+        return;
+    }
+    appliedDiscountCode = savedDiscountCode;
+    appliedDiscountDefinition = def;
 }
 
 function updateCartItemQty(key, delta) {
@@ -193,7 +206,7 @@ function renderTotals() {
         discountRow.style.display = 'flex';
         $('#checkout-discount').textContent = `-${formatCurrency(discountAmount)}`;
         discountPill.style.display = 'inline-flex';
-        $('#checkout-discount-pill-text').textContent = `${appliedDiscountCode} • ${getDiscountDescription(appliedDiscountCode)}`;
+        $('#checkout-discount-pill-text').textContent = `${appliedDiscountCode} • ${getDiscountDescription()}`;
     } else {
         discountRow.style.display = 'none';
         discountPill.style.display = 'none';
@@ -262,14 +275,13 @@ function validateForm() {
     return true;
 }
 
-function buildWhatsAppMessage(orderNumber) {
+function buildWhatsAppMessage(serverOrder) {
     const fields = getCustomerFields();
-    const { subtotal, discountAmount, finalTotal } = getCartTotals();
     const fullName = `${fields.firstName.value.trim()} ${fields.lastName.value.trim()}`.trim();
     const notes = fields.notes.value.trim();
 
     let message = `*طلب جديد من H&R Perfume*\n`;
-    message += `*رقم الطلب: ${orderNumber}*\n\n`;
+    message += `*رقم الطلب: #${serverOrder.order_number}*\n\n`;
     message += `الاسم: ${fullName}\n`;
     message += `الهاتف: ${fields.phone.value.trim()}\n`;
     message += `المنطقة: ${fields.governorate.value}\n`;
@@ -282,7 +294,7 @@ function buildWhatsAppMessage(orderNumber) {
     message += '\n*تفاصيل الطلب*\n';
     message += '------------------------------\n';
 
-    cart.forEach((item, index) => {
+    serverOrder.items.forEach((item, index) => {
         message += `${index + 1}. *${item.name}*\n`;
         message += `   الحجم: ${item.size}\n`;
         message += `   الكمية: ${item.qty}\n`;
@@ -290,26 +302,29 @@ function buildWhatsAppMessage(orderNumber) {
         message += '------------------------------\n';
     });
 
-    message += `\nالمجموع الفرعي: ${formatCurrency(subtotal)}\n`;
-    if (appliedDiscountCode && discountAmount > 0) {
-        message += `كود الخصم: ${appliedDiscountCode}\n`;
-        message += `قيمة الخصم: -${formatCurrency(discountAmount)}\n`;
+    message += `\nالمجموع الفرعي: ${formatCurrency(serverOrder.subtotal)}\n`;
+    if (serverOrder.discount_code && serverOrder.discount_amount > 0) {
+        message += `كود الخصم: ${serverOrder.discount_code}\n`;
+        message += `قيمة الخصم: -${formatCurrency(serverOrder.discount_amount)}\n`;
     }
-    message += `\n*المجموع النهائي: ${formatCurrency(finalTotal)}*\n`;
+    if (serverOrder.shipping > 0) {
+        message += `رسوم التوصيل: ${formatCurrency(serverOrder.shipping)}\n`;
+    } else {
+        message += `رسوم التوصيل: مجاني\n`;
+    }
+    message += `\n*المجموع النهائي: ${formatCurrency(serverOrder.total)}*\n`;
     message += '\nالدفع عند الاستلام.';
 
     return message;
 }
 
-function persistOrderSnapshot(orderNumber) {
-    const { subtotal, discountAmount, finalTotal } = getCartTotals();
+function persistOrderSnapshot(serverOrder) {
     const fields = getCustomerFields();
-    const shippingCost = finalTotal >= FREE_SHIPPING_THRESHOLD ? 0 : 2;
 
     const snapshot = {
-        orderNumber,
+        orderNumber: `#${serverOrder.order_number}`,
         date: new Date().toISOString(),
-        items: cart.map((item) => ({
+        items: serverOrder.items.map((item) => ({
             name: item.name,
             brand: item.brand,
             image: item.image,
@@ -317,11 +332,11 @@ function persistOrderSnapshot(orderNumber) {
             qty: item.qty,
             price: item.price
         })),
-        subtotal,
-        discountAmount,
-        discountCode: appliedDiscountCode || '',
-        shippingCost,
-        finalTotal: finalTotal + shippingCost,
+        subtotal: serverOrder.subtotal,
+        discountAmount: serverOrder.discount_amount,
+        discountCode: serverOrder.discount_code || '',
+        shippingCost: serverOrder.shipping,
+        finalTotal: serverOrder.total,
         paymentMethod: 'cod',
         customer: {
             firstName: fields.firstName.value.trim(),
@@ -336,13 +351,46 @@ function persistOrderSnapshot(orderNumber) {
     localStorage.setItem('hr_last_order', JSON.stringify(snapshot));
 }
 
+async function placeOrderViaEdgeFunction() {
+    const fields = getCustomerFields();
+    const payload = {
+        items: cart.map((item) => ({ id: item.id, size: item.size, qty: item.qty })),
+        discount_code: appliedDiscountCode || null,
+        customer: {
+            first_name: fields.firstName.value.trim(),
+            last_name: fields.lastName.value.trim(),
+            phone: fields.phone.value.trim(),
+            governorate: fields.governorate.value,
+            address: fields.address.value.trim(),
+            notes: fields.notes.value.trim()
+        }
+    };
+
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/place-order`, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+        let detail = '';
+        try { detail = JSON.stringify(await res.json()); } catch {}
+        throw new Error(`place-order ${res.status}: ${detail}`);
+    }
+
+    return res.json();
+}
+
 async function handleSubmit(event) {
     event.preventDefault();
 
     if (cart.length === 0) return;
     if (!validateForm()) return;
 
-    // Disable submit button to prevent double-clicks while awaiting order number
     const confirmBtn = $('#confirm-order-btn');
     if (confirmBtn) confirmBtn.disabled = true;
 
@@ -352,18 +400,28 @@ async function handleSubmit(event) {
     // context — mobile browsers block popups after async gaps.
     const whatsappWindow = window.open('about:blank', '_blank');
 
-    const orderNumber = await generateOrderNumber();
-    persistOrderSnapshot(orderNumber);
+    let serverOrder;
+    try {
+        serverOrder = await placeOrderViaEdgeFunction();
+    } catch (err) {
+        console.error('[place-order] failed:', err);
+        if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
+        if (confirmBtn) confirmBtn.disabled = false;
+        alert('عذراً، حدث خطأ أثناء تجهيز الطلب. الرجاء المحاولة مرة أخرى أو التواصل معنا عبر الواتساب.');
+        return;
+    }
 
-    const encoded = encodeURIComponent(buildWhatsAppMessage(orderNumber));
+    persistOrderSnapshot(serverOrder);
+
+    const encoded = encodeURIComponent(buildWhatsAppMessage(serverOrder));
     const whatsappUrl = `https://wa.me/962797107408?text=${encoded}`;
 
     if (whatsappWindow && !whatsappWindow.closed) {
         whatsappWindow.location.href = whatsappUrl;
     } else {
-        // Fallback if popup was still blocked — navigate directly
+        // Fallback if popup was blocked — navigate directly
         window.location.href = whatsappUrl;
-        return; // skip confirmation redirect since we navigated away
+        return;
     }
 
     // Clear active cart so user starts fresh, but keep the order snapshot.
@@ -374,8 +432,8 @@ async function handleSubmit(event) {
     window.location.href = 'order-confirmation.html';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadCart();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadCart();
     loadCustomerInfo();
     renderCheckout();
 

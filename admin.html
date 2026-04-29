@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>لوحة الإدارة | H&amp;R Perfume</title>
+    <link rel="icon" type="image/png" href="logo without background.png">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+    <!-- Login screen -->
+    <div id="login-screen" class="auth-screen" hidden>
+        <div class="auth-card">
+            <img src="logo without background.png" alt="H&amp;R Perfume" class="auth-logo">
+            <h1 class="auth-title">لوحة الإدارة</h1>
+            <p class="auth-subtitle" id="auth-subtitle">سجل الدخول للمتابعة</p>
+
+            <form id="auth-form" class="auth-form">
+                <label class="auth-field">
+                    <span>البريد الإلكتروني</span>
+                    <input type="email" id="auth-email" autocomplete="email" required>
+                </label>
+                <label class="auth-field">
+                    <span>كلمة السر</span>
+                    <input type="password" id="auth-password" autocomplete="current-password" minlength="6" required>
+                </label>
+                <p class="auth-error" id="auth-error" hidden></p>
+                <p class="auth-info" id="auth-info" hidden></p>
+                <button type="submit" class="auth-btn" id="auth-submit">
+                    <span id="auth-submit-label">دخول</span>
+                </button>
+            </form>
+
+            <div class="auth-actions">
+                <button class="auth-link" type="button" id="auth-toggle-mode">إنشاء حساب جديد</button>
+                <span class="auth-sep">·</span>
+                <button class="auth-link" type="button" id="auth-forgot">نسيت كلمة السر؟</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin app -->
+    <div id="admin-app" hidden>
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <div class="admin-brand">
+                    <img src="logo without background.png" alt="H&amp;R" class="admin-logo">
+                    <div>
+                        <span class="admin-brand-title">لوحة الإدارة</span>
+                        <span class="admin-brand-email" id="admin-user-email"></span>
+                    </div>
+                </div>
+                <button class="admin-icon-btn" id="admin-signout" title="تسجيل الخروج" aria-label="تسجيل الخروج">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <!-- Orders -->
+            <section class="admin-section" id="section-orders">
+                <div class="section-head">
+                    <h2><i class="fas fa-receipt"></i> الطلبات</h2>
+                    <button class="btn-refresh" id="orders-refresh" aria-label="تحديث">
+                        <i class="fas fa-rotate"></i>
+                    </button>
+                </div>
+                <div class="filter-chips" id="orders-filters">
+                    <button class="chip active" data-filter="all">الكل <span class="chip-count" data-count="all">0</span></button>
+                    <button class="chip" data-filter="new">جديد <span class="chip-count" data-count="new">0</span></button>
+                    <button class="chip" data-filter="confirmed">مؤكد <span class="chip-count" data-count="confirmed">0</span></button>
+                    <button class="chip" data-filter="shipped">مُرسل <span class="chip-count" data-count="shipped">0</span></button>
+                    <button class="chip" data-filter="delivered">مُسلَّم <span class="chip-count" data-count="delivered">0</span></button>
+                </div>
+                <label class="toggle-cancelled">
+                    <input type="checkbox" id="orders-show-cancelled">
+                    <span>إظهار الطلبات الملغاة</span>
+                </label>
+                <div class="list" id="orders-list">
+                    <div class="list-empty">جارٍ التحميل...</div>
+                </div>
+            </section>
+
+            <!-- Discount codes -->
+            <section class="admin-section" id="section-codes" hidden>
+                <div class="section-head">
+                    <h2><i class="fas fa-percent"></i> أكواد الخصم</h2>
+                    <button class="btn-primary btn-sm" id="codes-add">
+                        <i class="fas fa-plus"></i> كود جديد
+                    </button>
+                </div>
+                <div class="list" id="codes-list">
+                    <div class="list-empty">جارٍ التحميل...</div>
+                </div>
+            </section>
+
+            <!-- Products -->
+            <section class="admin-section" id="section-products" hidden>
+                <div class="section-head">
+                    <h2><i class="fas fa-spray-can-sparkles"></i> المنتجات</h2>
+                    <button class="btn-primary btn-sm" id="products-add">
+                        <i class="fas fa-plus"></i> منتج جديد
+                    </button>
+                </div>
+                <div class="filter-chips" id="products-filters">
+                    <button class="chip active" data-filter="all">الكل</button>
+                    <button class="chip" data-filter="Him">رجالي</button>
+                    <button class="chip" data-filter="Her">نسائي</button>
+                    <button class="chip" data-filter="Unisex">للجنسين</button>
+                    <button class="chip" data-filter="niche">نيش</button>
+                </div>
+                <div class="list" id="products-list">
+                    <div class="list-empty">جارٍ التحميل...</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom tab bar -->
+        <nav class="bottom-nav" id="bottom-nav">
+            <button class="tab active" data-section="orders">
+                <i class="fas fa-receipt"></i>
+                <span>الطلبات</span>
+                <span class="tab-badge" id="tab-badge-orders" hidden>0</span>
+            </button>
+            <button class="tab" data-section="codes">
+                <i class="fas fa-percent"></i>
+                <span>الأكواد</span>
+            </button>
+            <button class="tab" data-section="products">
+                <i class="fas fa-spray-can-sparkles"></i>
+                <span>المنتجات</span>
+            </button>
+        </nav>
+
+        <!-- Drawer for detail/edit -->
+        <div class="drawer-overlay" id="drawer-overlay" hidden></div>
+        <aside class="drawer" id="drawer" hidden>
+            <header class="drawer-head">
+                <h3 id="drawer-title">عنوان</h3>
+                <button class="admin-icon-btn" id="drawer-close" aria-label="إغلاق">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+            <div class="drawer-body" id="drawer-body"></div>
+        </aside>
+
+        <!-- Toast -->
+        <div class="toast" id="toast" hidden></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+
+</html>

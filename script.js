@@ -2,9 +2,7 @@
 const SUPABASE_URL = 'https://udwulegatrwkpwloevjz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_rPSseT-GCVtok4XkaJ62Pg_qLWpwH-a';
 const FREE_SHIPPING_THRESHOLD = 60;
-const DISCOUNT_CODES = {
-    HR20: { type: 'percentage', value: 20 }
-};
+const discountCodeCache = new Map();
 
 // ===== State =====
 let allProducts = [];
@@ -16,6 +14,7 @@ let selectedProduct = null;
 let selectedSize = '100ml';
 let selectedQty = 1;
 let appliedDiscountCode = '';
+let appliedDiscountDefinition = null;
 let visibleProductsCount = 8;
 const PRODUCTS_PER_PAGE = 8;
 
@@ -88,19 +87,32 @@ function normalizeCartItem(item) {
     };
 }
 
-function getDiscountCodeDefinition(code) {
-    return DISCOUNT_CODES[code] || null;
+async function fetchDiscountCodeDefinition(code) {
+    const upper = (code || '').trim().toUpperCase();
+    if (!upper) return null;
+    if (discountCodeCache.has(upper)) return discountCodeCache.get(upper);
+    try {
+        const url = `${SUPABASE_URL}/rest/v1/discount_codes?code=eq.${encodeURIComponent(upper)}&is_active=eq.true&select=*`;
+        const res = await fetch(url, {
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+        });
+        if (!res.ok) return null;
+        const rows = await res.json();
+        const row = rows[0] || null;
+        discountCodeCache.set(upper, row);
+        return row;
+    } catch {
+        return null;
+    }
 }
 
-function calculateDiscountAmount(subtotal, code = appliedDiscountCode) {
-    const discount = getDiscountCodeDefinition(code);
-    if (!discount) return 0;
-
-    if (discount.type === 'percentage') {
-        return Math.min(subtotal, subtotal * (discount.value / 100));
+function calculateDiscountAmount(subtotal) {
+    const d = appliedDiscountDefinition;
+    if (!d) return 0;
+    if (d.type === 'percentage') {
+        return Math.min(subtotal, subtotal * (d.value / 100));
     }
-
-    return Math.min(subtotal, discount.value);
+    return Math.min(subtotal, d.value);
 }
 
 function getCartTotals() {
@@ -111,13 +123,12 @@ function getCartTotals() {
     return { subtotal, discountAmount, finalTotal };
 }
 
-function getDiscountDescription(code) {
-    const discount = getDiscountCodeDefinition(code);
-    if (!discount) return '';
-
-    return discount.type === 'percentage'
-        ? `\u062e\u0635\u0645 ${discount.value}%`
-        : `\u062e\u0635\u0645 ${formatCurrency(discount.value)}`;
+function getDiscountDescription() {
+    const d = appliedDiscountDefinition;
+    if (!d) return '';
+    return d.type === 'percentage'
+        ? `\u062e\u0635\u0645 ${d.value}%`
+        : `\u062e\u0635\u0645 ${formatCurrency(d.value)}`;
 }
 
 function shouldCompactCartDiscount() {
@@ -131,7 +142,7 @@ function syncDiscountCollapseState(forceExpanded = null) {
 
     if (!section || !toggleBtn || !toggleHint) return;
 
-    const hasAppliedCode = Boolean(appliedDiscountCode && getDiscountCodeDefinition(appliedDiscountCode));
+    const hasAppliedCode = Boolean(appliedDiscountCode && appliedDiscountDefinition);
     const isCompact = shouldCompactCartDiscount();
     let expanded = true;
 
@@ -188,11 +199,11 @@ function syncDiscountUI() {
     input.value = input.value.toUpperCase();
     applyBtn.disabled = input.value.trim().length === 0;
 
-    if (appliedDiscountCode && getDiscountCodeDefinition(appliedDiscountCode)) {
+    if (appliedDiscountCode && appliedDiscountDefinition) {
         const { discountAmount } = getCartTotals();
         appliedBox.style.display = 'block';
         appliedCodeEl.textContent = `\u0643\u0648\u062f \u0627\u0644\u062e\u0635\u0645: ${appliedDiscountCode}`;
-        appliedValueEl.textContent = `${getDiscountDescription(appliedDiscountCode)} - ${formatCurrency(discountAmount)}`;
+        appliedValueEl.textContent = `${getDiscountDescription()} - ${formatCurrency(discountAmount)}`;
     } else if (appliedBox) {
         appliedBox.style.display = 'none';
     }
@@ -200,7 +211,7 @@ function syncDiscountUI() {
     syncDiscountCollapseState();
 }
 
-function applyDiscountCode() {
+async function applyDiscountCode() {
     const input = $('#discount-code-input');
     if (!input) return;
 
@@ -208,18 +219,36 @@ function applyDiscountCode() {
     input.value = code;
 
     if (!code) {
-        setDiscountValidationMessage('\u0627\u0644\u0631\u062c\u0627\u0621 \u0625\u062f\u062e\u0624\u0644 \u0643\u0648\u062f \u062e\u0635\u0645', 'invalid');
+        setDiscountValidationMessage('\u0627\u0644\u0631\u062c\u0627\u0621 \u0625\u062f\u062e\u0627\u0644 \u0643\u0648\u062f \u062e\u0635\u0645', 'invalid');
         input.focus();
         return;
     }
 
-    if (!getDiscountCodeDefinition(code)) {
+    const def = await fetchDiscountCodeDefinition(code);
+    if (!def) {
         setDiscountValidationMessage('\u2717 \u0643\u0648\u062f \u063a\u064a\u0631 \u0635\u062d\u064a\u062d', 'invalid');
         input.focus();
         return;
     }
 
+    if (def.expires_at && new Date(def.expires_at) < new Date()) {
+        setDiscountValidationMessage('\u2717 \u0647\u0630\u0627 \u0627\u0644\u0643\u0648\u062f \u0645\u0646\u062a\u0647\u064a \u0627\u0644\u0635\u0644\u0627\u062d\u064a\u0629', 'invalid');
+        return;
+    }
+
+    if (def.max_uses != null && def.current_uses >= def.max_uses) {
+        setDiscountValidationMessage('\u2717 \u062a\u0645 \u0627\u0633\u062a\u0646\u0641\u0627\u062f \u0647\u0630\u0627 \u0627\u0644\u0643\u0648\u062f', 'invalid');
+        return;
+    }
+
+    const { subtotal } = getCartTotals();
+    if (def.min_order_total != null && subtotal < def.min_order_total) {
+        setDiscountValidationMessage(`\u2717 \u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649 \u0644\u0644\u0637\u0644\u0628 ${formatCurrency(def.min_order_total)}`, 'invalid');
+        return;
+    }
+
     appliedDiscountCode = code;
+    appliedDiscountDefinition = def;
     localStorage.setItem('hr_discount_code', appliedDiscountCode);
     updateCartUI();
     syncDiscountCollapseState(true);
@@ -228,6 +257,7 @@ function applyDiscountCode() {
 
 function removeDiscountCode() {
     appliedDiscountCode = '';
+    appliedDiscountDefinition = null;
     localStorage.removeItem('hr_discount_code');
     const input = $('#discount-code-input');
     if (input) input.value = '';
@@ -249,11 +279,7 @@ function handleDiscountInput() {
         return;
     }
 
-    if (getDiscountCodeDefinition(code)) {
-        setDiscountValidationMessage('\u2713 \u0643\u0648\u062f \u0635\u062d\u064a\u062d! \u0627\u0636\u063a\u0637 \u062a\u0637\u0628\u064a\u0642', 'valid');
-    } else {
-        setDiscountValidationMessage('\u2717 \u0643\u0648\u062f \u063a\u064a\u0631 \u0635\u062d\u064a\u062d', 'invalid');
-    }
+    setDiscountValidationMessage('', '');
 }
 
 // ===== Supabase Fetch =====
@@ -457,8 +483,23 @@ try {
     cart = [];
 }
 
-const savedDiscountCode = (localStorage.getItem('hr_discount_code') || '').toUpperCase();
-appliedDiscountCode = getDiscountCodeDefinition(savedDiscountCode) ? savedDiscountCode : '';
+async function restoreSavedDiscountCode() {
+    const saved = (localStorage.getItem('hr_discount_code') || '').toUpperCase();
+    if (!saved) return;
+    const def = await fetchDiscountCodeDefinition(saved);
+    if (!def) { localStorage.removeItem('hr_discount_code'); return; }
+    if (def.expires_at && new Date(def.expires_at) < new Date()) {
+        localStorage.removeItem('hr_discount_code');
+        return;
+    }
+    if (def.max_uses != null && def.current_uses >= def.max_uses) {
+        localStorage.removeItem('hr_discount_code');
+        return;
+    }
+    appliedDiscountCode = saved;
+    appliedDiscountDefinition = def;
+    updateCartUI();
+}
 
 function updateCartItemQty(key, delta) {
     const item = cart.find(cartItem => cartItem.key === key);
@@ -1270,6 +1311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
     initSearch();
     updateCartUI();
+    restoreSavedDiscountCode();
 
 
     // Delay scroll animations to after products load
