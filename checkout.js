@@ -213,19 +213,46 @@ function renderItems() {
     });
 }
 
+const AMMAN_NAMES = new Set(['عمّان', 'عمان', 'amman']);
+const AMMAN_SHIPPING_COST = 2;
+const OTHER_SHIPPING_COST = 3;
+
+function getShippingForGovernorate(gov) {
+    const value = (gov || '').trim();
+    if (!value) return null;
+    if (AMMAN_NAMES.has(value) || AMMAN_NAMES.has(value.toLowerCase())) {
+        return AMMAN_SHIPPING_COST;
+    }
+    return OTHER_SHIPPING_COST;
+}
+
 function renderTotals() {
     const { subtotal, discountAmount, finalTotal } = getCartTotals();
-    const remainingForFreeShipping = Math.max(FREE_SHIPPING_THRESHOLD - finalTotal, 0);
-    const shippingProgress = Math.min((finalTotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
     const discountRow = $('#checkout-discount-row');
     const discountPill = $('#checkout-discount-pill');
+    const govEl = $('#customer-governorate');
+    const shipping = govEl ? getShippingForGovernorate(govEl.value) : null;
+    const shippingEl = $('#checkout-shipping');
+    const shippingHintEl = $('#checkout-shipping-hint');
+    const shippingMessageEl = $('#checkout-shipping-message');
 
     $('#checkout-subtotal').textContent = formatCurrency(subtotal);
-    $('#checkout-total').textContent = formatCurrency(finalTotal);
-    $('#checkout-shipping-progress').style.width = `${shippingProgress}%`;
-    $('#checkout-shipping-message').textContent = remainingForFreeShipping === 0
-        ? 'طلبك مؤهل للحصول على شحن مجاني.'
-        : `أضف ${formatCurrency(remainingForFreeShipping)} للحصول على شحن مجاني.`;
+
+    if (shipping == null) {
+        shippingEl.textContent = '—';
+        if (shippingHintEl) shippingHintEl.style.display = '';
+        if (shippingMessageEl) shippingMessageEl.textContent = 'رسوم التوصيل تُضاف عند تحديد المحافظة';
+        $('#checkout-total').textContent = formatCurrency(finalTotal);
+    } else {
+        shippingEl.textContent = formatCurrency(shipping);
+        if (shippingHintEl) shippingHintEl.style.display = 'none';
+        if (shippingMessageEl) {
+            shippingMessageEl.textContent = shipping === AMMAN_SHIPPING_COST
+                ? `رسوم التوصيل لعمّان: ${formatCurrency(shipping)}`
+                : `رسوم التوصيل لمحافظتك: ${formatCurrency(shipping)}`;
+        }
+        $('#checkout-total').textContent = formatCurrency(finalTotal + shipping);
+    }
 
     if (discountAmount > 0) {
         discountRow.style.display = 'flex';
@@ -497,4 +524,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         field.addEventListener('input', saveCustomerInfo);
         field.addEventListener('change', saveCustomerInfo);
     });
+    $('#customer-governorate').addEventListener('change', renderTotals);
+    renderTotals();
 });

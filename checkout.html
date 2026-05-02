@@ -6,7 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إتمام الطلب | H&R Perfume</title>
     <meta name="description" content="أكمل طلبك من H&R Perfume وأرسل تفاصيل الطلب عبر واتساب.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="إتمام الطلب | H&R Perfume">
+    <meta property="og:description" content="أكمل طلبك من H&R Perfume — عطور فاخرة بأسعار مميزة. توصيل لكل الأردن.">
+    <meta property="og:image" content="logo without background.png">
+    <meta property="og:locale" content="ar_JO">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="إتمام الطلب | H&R Perfume">
+    <meta name="twitter:image" content="logo without background.png">
+
     <link rel="icon" type="image/png" href="logo without background.png">
+    <link rel="apple-touch-icon" href="logo without background.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Playfair+Display:wght@400;500;600;700&display=swap"
         rel="stylesheet">
@@ -19,7 +30,7 @@
     <header class="checkout-header">
         <div class="header-top">
             <div class="container">
-                <span><i class="fas fa-shipping-fast"></i> توصيل مجاني للطلبات التي تتجاوز 60 د.أ</span>
+                <span><i class="fas fa-shipping-fast"></i> رسوم التوصيل: 2 د.أ داخل عمّان · 3 د.أ لبقية المحافظات</span>
                 <span><i class="fas fa-gem"></i> عطور فاخرة بأسعار مميزة</span>
             </div>
         </div>
@@ -66,13 +77,11 @@
                             <p>املأ البيانات الأساسية حتى نجهز طلبك بسرعة.</p>
                         </div>
 
-                        <div class="checkout-free-shipping" id="checkout-free-shipping">
-                            <div class="checkout-free-shipping-copy">
-                                <strong id="checkout-shipping-message">أضف المزيد للحصول على شحن مجاني.</strong>
-                                <span>الشحن المجاني متاح للطلبات فوق 60 د.أ.</span>
-                            </div>
-                            <div class="checkout-shipping-bar">
-                                <span id="checkout-shipping-progress"></span>
+                        <div class="checkout-shipping-notice" id="checkout-shipping-notice">
+                            <i class="fas fa-truck"></i>
+                            <div class="checkout-shipping-notice-copy">
+                                <strong id="checkout-shipping-message">رسوم التوصيل تُضاف عند تحديد المحافظة</strong>
+                                <span>2 د.أ داخل عمّان · 3 د.أ لبقية المحافظات</span>
                             </div>
                         </div>
 
@@ -176,6 +185,10 @@
                                 style="display:none;">
                                 <span>قيمة الخصم</span>
                                 <strong id="checkout-discount">-0 د.أ</strong>
+                            </div>
+                            <div class="checkout-total-line">
+                                <span>رسوم التوصيل <small id="checkout-shipping-hint">(تُحدد بعد اختيار المحافظة)</small></span>
+                                <strong id="checkout-shipping">—</strong>
                             </div>
                             <div class="checkout-total-line checkout-total-line-final">
                                 <span>المجموع النهائي</span>

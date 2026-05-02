@@ -51,6 +51,10 @@ function getProductBottlePrice(product) {
         : (Number(product?.price_100ml) || 0);
 }
 
+function getProductBottleSize(product) {
+    return getProductCategory(product) === 'niche' ? '60ml' : '100ml';
+}
+
 function getGenderArabic(gender) {
     const map = {
         Him: '\u0644\u0644\u0631\u062c\u0627\u0644',
@@ -327,7 +331,7 @@ function createProductCard(product, index) {
             </span>
             <div class="product-prices">
                 <div class="price-tag">
-                    <span class="price-size">100ml</span>
+                    <span class="price-size">${getProductBottleSize(product)}</span>
                     <span class="price-value">${getProductBottlePrice(product)} <span class="price-currency">\u062f.\u0623</span></span>
                 </div>
             </div>
@@ -391,7 +395,8 @@ function showMoreProducts() {
 // ===== Product Modal =====
 function openProductModal(product) {
     selectedProduct = product;
-    selectedSize = '100ml';
+    const bottleSize = getProductBottleSize(product);
+    selectedSize = bottleSize;
     selectedQty = 1;
 
     $('#modal-product-image').src = product.image_url;
@@ -399,12 +404,15 @@ function openProductModal(product) {
     $('#modal-brand').textContent = '';
     $('#modal-name').textContent = product.name + ' -H&R ';
     $('#modal-gender').innerHTML = `<i class="${getGenderIcon(product.gender)}"></i> ${getGenderArabic(product.gender)}`;
-    $('#price-100').textContent = `${getProductBottlePrice(product)} \u062f.\u0623`;
+    const sizeBtn = $('#size-60');
+    sizeBtn.dataset.size = bottleSize;
+    sizeBtn.querySelector('.size-label').textContent = bottleSize;
+    $('#price-60').textContent = `${getProductBottlePrice(product)} \u062f.\u0623`;
     $('#qty-value').textContent = '1';
 
     // Reset size selection
     $$('.size-btn').forEach(btn => btn.classList.remove('active'));
-    $("#size-100").classList.add('active');
+    sizeBtn.classList.add('active');
 
     // Show modal
     $('#product-modal-overlay').classList.add('active');
@@ -559,8 +567,6 @@ function updateCartUI() {
 
     const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
     const { subtotal, discountAmount, finalTotal } = getCartTotals();
-    const remainingForFreeShipping = Math.max(FREE_SHIPPING_THRESHOLD - finalTotal, 0);
-    const shippingProgress = Math.min((finalTotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
 
     $('#cart-count').textContent = totalItems;
     $('#cart-subtotal-price').textContent = formatCurrency(subtotal);
@@ -575,11 +581,11 @@ function updateCartUI() {
 
     const shippingMessage = $('#cart-shipping-message');
     const shippingProgressBar = $('#cart-shipping-progress');
-    if (shippingMessage && shippingProgressBar) {
-        shippingMessage.textContent = remainingForFreeShipping === 0
-            ? '\u0637\u0644\u0628\u0643 \u0645\u0624\u0647\u0644 \u0644\u0644\u062d\u0635\u0648\u0644 \u0639\u0644\u0649 \u0634\u062d\u0646 \u0645\u062c\u0627\u0646\u064a.'
-            : `\u0623\u0636\u0641 ${formatCurrency(remainingForFreeShipping)} \u0644\u0644\u062d\u0635\u0648\u0644 \u0639\u0644\u0649 \u0634\u062d\u0646 \u0645\u062c\u0627\u0646\u064a.`;
-        shippingProgressBar.style.width = `${shippingProgress}%`;
+    if (shippingMessage) {
+        shippingMessage.textContent = '\u0631\u0633\u0648\u0645 \u0627\u0644\u062a\u0648\u0635\u064a\u0644: 2 \u062f.\u0623 \u062f\u0627\u062e\u0644 \u0639\u0645\u0651\u0627\u0646 \u00b7 3 \u062f.\u0623 \u0644\u0628\u0642\u064a\u0629 \u0627\u0644\u0645\u062d\u0627\u0641\u0638\u0627\u062a';
+    }
+    if (shippingProgressBar) {
+        shippingProgressBar.style.display = 'none';
     }
 
     syncDiscountUI();
@@ -595,7 +601,6 @@ function updateCartUI() {
                 <span>أضف منتجات لتبدأ التسوق</span>
             </div>`;
         cartFooter.style.display = 'none';
-        if (shippingProgressBar) shippingProgressBar.style.width = '0%';
         setDiscountValidationMessage('', '');
     } else {
         cartItemsContainer.innerHTML = '';

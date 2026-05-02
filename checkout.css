@@ -125,50 +125,37 @@
     font-size: 0.93rem;
 }
 
-.checkout-free-shipping {
+.checkout-shipping-notice {
     margin-bottom: 22px;
     padding: 16px 18px;
     border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.03);
-}
-
-.checkout-free-shipping-copy {
+    border: 1px solid #e5e5e8;
+    background: #f7f7f8;
     display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 10px;
-    align-items: flex-start;
+    align-items: center;
+    gap: 14px;
 }
 
-.checkout-free-shipping-copy strong {
-    color: var(--text-primary);
-    font-size: 0.96rem;
-}
-
-.checkout-free-shipping-copy span {
-    color: var(--text-muted);
-    font-size: 0.82rem;
+.checkout-shipping-notice > i {
+    font-size: 1.4rem;
+    color: #14161a;
     flex-shrink: 0;
 }
 
-.checkout-shipping-bar {
-    width: 100%;
-    height: 10px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 999px;
-    overflow: hidden;
+.checkout-shipping-notice-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.checkout-shipping-bar span {
-    display: block;
-    width: 0;
-    height: 100%;
-    background: repeating-linear-gradient(-45deg,
-            var(--gold-dark) 0 10px,
-            var(--gold-primary) 10px 20px);
-    border-radius: inherit;
-    transition: width var(--transition-base);
+.checkout-shipping-notice-copy strong {
+    color: #14161a;
+    font-size: 0.96rem;
+}
+
+.checkout-shipping-notice-copy span {
+    color: var(--text-muted);
+    font-size: 0.85rem;
 }
 
 .checkout-form {
@@ -414,7 +401,7 @@
 
 .checkout-item-qty button:hover {
     background: var(--gold-primary);
-    color: var(--bg-primary);
+    color: var(--text-on-gold);
 }
 
 .checkout-item-qty span {

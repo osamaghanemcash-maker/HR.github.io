@@ -3,13 +3,12 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: var(--bg-primary);
 }
 
 .legal-header {
-    background: rgba(10, 10, 12, 0.85);
-    backdrop-filter: blur(24px) saturate(160%);
-    -webkit-backdrop-filter: blur(24px) saturate(160%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: #000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     padding: 16px 0;
     position: sticky;
     top: 0;
@@ -37,14 +36,14 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--text-secondary);
+    color: #cfcfd2;
     text-decoration: none;
     font-size: 0.95rem;
     transition: color 0.2s;
 }
 
 .legal-back-link:hover {
-    color: var(--gold-primary);
+    color: #ffffff;
 }
 
 .legal-back-link i {
@@ -54,6 +53,7 @@
 .legal-content {
     flex: 1;
     padding: 60px 0 80px;
+    background: var(--bg-secondary);
 }
 
 .legal-content .container {
@@ -63,7 +63,7 @@
 .legal-title {
     font-family: var(--font-display);
     font-size: clamp(2rem, 5vw, 3rem);
-    color: var(--gold-primary);
+    color: #14161a;
     text-align: center;
     margin-bottom: 12px;
     letter-spacing: 0.5px;
@@ -77,20 +77,20 @@
 }
 
 .legal-body {
-    background: rgba(20, 20, 26, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #ffffff;
+    border: 1px solid #e5e5e8;
     border-radius: 16px;
     padding: 40px clamp(20px, 4vw, 56px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
 .legal-body h2 {
     font-family: var(--font-display);
     font-size: 1.6rem;
-    color: var(--gold-primary);
+    color: #14161a;
     margin: 36px 0 16px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(191, 149, 63, 0.2);
+    border-bottom: 1px solid #e5e5e8;
 }
 
 .legal-body h2:first-child {
@@ -129,28 +129,28 @@
 }
 
 .legal-body a {
-    color: var(--gold-primary);
+    color: #14161a;
     text-decoration: none;
-    border-bottom: 1px dotted rgba(191, 149, 63, 0.4);
+    border-bottom: 1px dotted #8b8e93;
     transition: color 0.2s;
 }
 
 .legal-body a:hover {
-    color: var(--gold-light);
-    border-bottom-color: var(--gold-light);
+    color: #000000;
+    border-bottom-color: #000000;
 }
 
 .legal-contact-box {
     margin-top: 36px;
     padding: 24px;
-    background: rgba(191, 149, 63, 0.08);
-    border: 1px solid rgba(191, 149, 63, 0.25);
+    background: #f7f7f8;
+    border: 1px solid #e5e5e8;
     border-radius: 12px;
 }
 
 .legal-contact-box h3 {
     margin-top: 0;
-    color: var(--gold-primary);
+    color: #14161a;
 }
 
 .legal-contact-box ul {
@@ -167,7 +167,7 @@
 }
 
 .legal-contact-box i {
-    color: var(--gold-primary);
+    color: #14161a;
     width: 20px;
 }
 
